@@ -9,7 +9,7 @@
 
 Create forms in the admin panel, share a public URL, and collect submissions without shipping a custom frontend for every intake form.
 
-**[Watch the demo on YouTube →](https://youtu.be/c5VcwW3_Vfk)**
+**[Watch the demo on YouTube →](https://youtu.be/t2MORdJdcBg)**
 
 | | |
 |---|---|
