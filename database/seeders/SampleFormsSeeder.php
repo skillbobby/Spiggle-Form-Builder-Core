@@ -15,9 +15,9 @@ class SampleFormsSeeder extends Seeder
             $submissions = $definition['submissions'] ?? [];
             unset($definition['submissions']);
 
-            $form = Form::query()->updateOrCreate(
+            $form = Form::withTrashed()->updateOrCreate(
                 ['slug' => $definition['slug']],
-                $definition
+                array_merge($definition, ['deleted_at' => null])
             );
 
             if ($form->submissions()->exists()) {

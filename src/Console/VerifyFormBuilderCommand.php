@@ -93,7 +93,11 @@ class VerifyFormBuilderCommand extends Command
 
             $components = app(FormRenderer::class)->toFilament($form);
             $failures += $this->assertTrue($components !== [], 'Filament renderer produced components');
-            $failures += $this->assertTrue($components[0] instanceof \Filament\Schemas\Components\Wizard, 'wizard layout maps to Filament Wizard');
+            if (FeatureCatalog::proUnlocked()) {
+                $failures += $this->assertTrue($components[0] instanceof \Filament\Schemas\Components\Wizard, 'wizard layout maps to Filament Wizard');
+            } else {
+                $failures += $this->assertTrue($components[0] instanceof \Filament\Schemas\Components\Section, 'Pro locked — wizard falls back to single-page sections');
+            }
 
             $rules = app(ValidationBuilder::class)->rules($form);
             $failures += $this->assertTrue(isset($rules['data.full_name']), 'validation includes full_name');

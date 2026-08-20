@@ -15,10 +15,12 @@ class SeedSampleFormsCommand extends Command
     {
         if ($this->option('fresh')) {
             $slugs = ['contact-us', 'event-registration', 'job-application', 'customer-feedback'];
-            \Spiggle\FormBuilder\Models\Form::query()->whereIn('slug', $slugs)->each(function ($form): void {
-                $form->submissions()->delete();
-                $form->delete();
-            });
+            \Spiggle\FormBuilder\Models\Form::withTrashed()
+                ->whereIn('slug', $slugs)
+                ->each(function ($form): void {
+                    $form->submissions()->delete();
+                    $form->forceDelete();
+                });
             $this->warn('Removed existing sample forms.');
         }
 
