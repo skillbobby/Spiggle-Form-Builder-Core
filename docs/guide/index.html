@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spiggle Form Builder — Documentation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+    </a>
+    <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
+    <nav class="site-nav" aria-label="Documentation">
+      <a href="../index.html">Home</a>
+      <a class="active" href="index.html">Overview</a>
+      <a href="usage.html">Usage</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="workflows.html">Workflows</a>
+      <a href="features.html">Features</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <aside class="toc">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#what">What it is</a></li>
+        <li><a href="#who">Who this is for</a></li>
+        <li><a href="#toc">Full contents</a></li>
+        <li><a href="#quick">Quick start</a></li>
+        <li><a href="#family">Related plugin</a></li>
+      </ol>
+    </aside>
+
+    <main class="content" id="main">
+      <div class="hero">
+        <p class="meta"><span class="badge navy">spiggle/form-builder</span> <span class="badge">v1.0.0</span> <span class="badge teal">Filament 3 / 4 / 5</span></p>
+        <h1>Build, publish, capture, and review forms</h1>
+        <p>A visual schema builder in Filament, a public Livewire renderer at <code>/forms/{path}</code>, and a submission inbox with filters, charts, and CSV / Excel / PDF export.</p>
+      </div>
+
+      <h2 id="what">What it is</h2>
+      <p class="lead">Spiggle Form Builder is a Laravel + Filament plugin for standalone forms. The schema is a portable JSON document. The public page does not depend on Filament CSS. Submissions are stored in their own tables — not as Dynamic Fields EAV rows.</p>
+      <p>Field types match <strong>Spiggle Dynamic Fields</strong> when that package is installed (<code>FieldCatalog</code>). You can copy custom-field definitions into a form with <code>Form::importCustomFields($ids)</code>.</p>
+
+      <div class="grid-3">
+        <div class="card">
+          <h3>Admin users</h3>
+          <p>Create forms under <strong>Forms</strong>, design sections and fields, publish, then review <strong>Submissions</strong>.</p>
+        </div>
+        <div class="card">
+          <h3>Site visitors</h3>
+          <p>Open the public URL (default <code>/forms/contact-us</code>), complete the layout (single, wizard, tabs, or pages), and submit.</p>
+        </div>
+        <div class="card">
+          <h3>Developers</h3>
+          <p>Register the plugin, migrate, optionally enable root-path vanity URLs, and listen for <code>FormSubmitted</code>.</p>
+        </div>
+      </div>
+
+      <h2 id="who">Who this is for</h2>
+      <ul>
+        <li><strong>Operators</strong> who need contact, registration, application, or survey forms without a custom Livewire page each time.</li>
+        <li><strong>Reviewers</strong> who triage inbox status (new / reviewed / archived / spam), export, and archive.</li>
+        <li><strong>Developers</strong> embedding the plugin in a Filament v5 host (this starter already registers it next to Dynamic Fields).</li>
+      </ul>
+
+      <h2 id="toc">Documentation contents</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3><a href="usage.html">Usage guide</a></h3>
+          <p>Install, register the plugin, publish config/migrations/views, routing, Shield permissions, Artisan, and config keys.</p>
+        </div>
+        <div class="card">
+          <h3><a href="architecture.html">Architecture</a></h3>
+          <p>Headless split: schema document, public renderer, submission engine, sanitization, audit, exports.</p>
+        </div>
+        <div class="card">
+          <h3><a href="workflows.html">Workflows</a></h3>
+          <p>Create a form, publish it, capture data, validate, store, review, export, clone, and import custom fields.</p>
+        </div>
+        <div class="card">
+          <h3><a href="features.html">Features</a></h3>
+          <p>Layouts, field types, builder UX, public forms, files, tags, redirects, submissions, charts, and exports.</p>
+        </div>
+        <div class="card">
+          <h3><a href="support.html">Support &amp; FAQ</a></h3>
+          <p>Troubleshooting, GitHub issues, version, and how this plugin relates to Dynamic Fields.</p>
+        </div>
+        <div class="card">
+          <h3><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub repository</a></h3>
+          <p>Source and issues for <code>spiggle/form-builder</code>.</p>
+        </div>
+      </div>
+
+      <h2 id="quick">Quick start</h2>
+<pre><code>composer require spiggle/form-builder:@dev
+php artisan vendor:publish --tag=form-builder-config
+php artisan migrate</code></pre>
+<pre><code>use Spiggle\FormBuilder\Filament\FormBuilderPlugin;
+
+$panel
+    -&gt;plugin(\Spiggle\DynamicFields\Filament\DynamicFieldsPlugin::make()) // optional, recommended
+    -&gt;plugin(FormBuilderPlugin::make());</code></pre>
+      <p>Public forms: <code>/{prefix}/{base_path}</code> (default prefix <code>forms</code>). Example: <code>/forms/contact-us</code>.</p>
+      <p>Seed demos: <code>php artisan form-builder:seed</code> (Contact Us, Event Registration, Job Application, Customer Feedback).</p>
+
+      <h2 id="family">Related plugin</h2>
+      <p><strong>Spiggle Dynamic Fields</strong> (<code>spiggle/dynamic-fields</code> v1.1.0) attaches extra attributes to Eloquent models. Form Builder can run without it; types then come from <code>config/form-builder.php</code>. Site: <a href="https://skillbobby.github.io/Spiggle-Plugins/dynamic-fields/">Spiggle Dynamic Fields</a>. Repo: <a href="https://github.com/skillbobby/Spiggle-Dynamic-Fields">skillbobby/Spiggle-Dynamic-Fields</a>.</p>
+
+      <div class="pager">
+        <span></span>
+        <a href="usage.html">Usage guide →</a>
+      </div>
+    </main>
+    <p class="footer">Spiggle Form Builder v1.0.0 · Offline HTML documentation · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
+  </div>
+</body>
+</html>
+

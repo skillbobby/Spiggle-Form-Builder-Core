@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Workflows — Spiggle Form Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+    </a>
+    <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
+    <nav class="site-nav" aria-label="Documentation">
+      <a href="../index.html">Home</a>
+      <a href="index.html">Overview</a>
+      <a href="usage.html">Usage</a>
+      <a href="architecture.html">Architecture</a>
+      <a class="active" href="workflows.html">Workflows</a>
+      <a href="features.html">Features</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <aside class="toc">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#create">Create a form</a></li>
+        <li><a href="#build">Add sections and fields</a></li>
+        <li><a href="#publish">Publish and share</a></li>
+        <li><a href="#fill">Fill the public form</a></li>
+        <li><a href="#review">Review submissions</a></li>
+        <li><a href="#export">Export</a></li>
+        <li><a href="#clone">Clone, JSON, custom fields</a></li>
+        <li><a href="#dev">Developer capture</a></li>
+      </ol>
+    </aside>
+
+    <main class="content" id="main">
+      <p class="meta"><span class="badge navy">Workflows</span></p>
+      <h1>Step-by-step workflows</h1>
+      <p class="lead">Panel path in the starter is <code>/admin</code>. Navigation group: <strong>Forms</strong>.</p>
+
+      <h2 id="create">Create a form (admin)</h2>
+      <ol class="steps">
+        <li>Open <strong>Forms</strong> and click <strong>Create</strong>.</li>
+        <li>On the <strong>Settings</strong> tab, enter a <strong>Name</strong>. Slug and public path auto-fill from the name on blur if they were empty.</li>
+        <li>Adjust <strong>Public path</strong> if you want a friendlier URL. Conflicts get a short <code>-f{hash}</code> suffix. The helper text shows the prefix (default <code>/forms/{path}</code>).</li>
+        <li>Choose <strong>Layout</strong>: Single page, Wizard, Tabs, or Pages.</li>
+        <li>Optional: description, default label position, success message, redirect URL after submit, notify emails.</li>
+        <li>Leave <strong>Published</strong> off until the builder is ready. <strong>Active</strong> defaults on. Both must be on for the public URL to work.</li>
+        <li>Save. You return to the <strong>list</strong> (create redirects to index). Open the form again to continue building.</li>
+      </ol>
+
+      <h2 id="build">Add sections and fields</h2>
+      <ol class="steps">
+        <li>Open the form and use the <strong>Builder</strong> tab (the tab is kept in the query string).</li>
+        <li>Each <strong>section</strong> is a collapsed repeater row labeled with the section title. Drag to reorder. Clone a section if the layout allows more than one.</li>
+        <li><strong>Single page</strong> forms cannot add or delete extra sections (max 1).</li>
+        <li>Inside a section, <strong>Add field</strong>. Collapsed rows show <code>Field label · type</code> (or the internal name).</li>
+        <li>Set label (auto-slugs the internal name if empty), type, width on the 12-column grid, required, optional label position override, label override, placeholder, hint, extra Laravel rules, and visibility pair.</li>
+        <li>For select/radio/multi-select/tags, add options. Collapsed option rows show the option label.</li>
+        <li>Switch to <strong>Preview</strong> for a live schematic of sections and spans. It is not the interactive public form.</li>
+      </ol>
+      <div class="callout admin">
+        <strong>Empty schema on create</strong>
+        If you save with no sections, the page inserts a default “Details” section with no fields so the schema is never empty.
+      </div>
+
+      <h2 id="publish">Publish and share</h2>
+      <ol class="steps">
+        <li>Turn <strong>Published</strong> on (and keep <strong>Active</strong> on). Save.</li>
+        <li>On the list, <strong>Open</strong> appears for published+active forms (new tab). The view page has <strong>Open public form</strong>.</li>
+        <li>Share the URL shown under the form name (e.g. <code>/forms/contact-us</code>).</li>
+      </ol>
+      <p>Unpublished forms stay in the admin but 404 for guests.</p>
+
+      <h2 id="fill">Capture data on the public form</h2>
+      <ol class="steps">
+        <li>Open the public URL. The page uses the package layout and CSS (no Filament theme required).</li>
+        <li><strong>Wizard / pages:</strong> complete the step, click Next or Save and continue. Only that section is validated. Drafts restore if the visitor comes back in the same session.</li>
+        <li><strong>Tabs:</strong> switch sections freely; everything validates on Submit.</li>
+        <li>Required fields show an asterisk. Errors appear under the field.</li>
+        <li>On success, the success message displays. If a redirect URL is set, a Continue link appears (the visitor is not force-redirected).</li>
+      </ol>
+
+      <h2 id="review">Review submissions</h2>
+      <ol class="steps">
+        <li>Open <strong>Submissions</strong>, or the Submissions relation on a form’s view/edit.</li>
+        <li>Header charts: submissions over the last 14 days, and status doughnut.</li>
+        <li>Tabs: Table / New / Reviewed / Archived.</li>
+        <li>Filters: form (on the global list), status, submitted between dates, <strong>Field contains</strong> (internal field name + substring).</li>
+        <li>Open a row to see labeled answers (option values mapped to labels). Mark <strong>Reviewed</strong> or <strong>Archive</strong>.</li>
+        <li>Bulk: change status, archive, export selected, delete (audit logged).</li>
+      </ol>
+      <p>Statuses: New (warning), Reviewed (success), Archived (gray), Spam (danger).</p>
+
+      <h2 id="export">Export CSV / Excel / PDF</h2>
+      <ol class="steps">
+        <li>On the submissions list, click <strong>Export</strong> (needs <code>export_form_submissions</code> once Shield has created it).</li>
+        <li>Choose CSV, Excel (XML), or PDF.</li>
+        <li>A notification shows the absolute path on the exports disk (default <code>storage/app/form-builder-exports/</code>). Download from the server or copy the file.</li>
+        <li>Or select rows and use <strong>Export selected</strong>.</li>
+      </ol>
+
+      <h2 id="clone">Clone, JSON export, import custom fields</h2>
+      <h3>Clone (admin)</h3>
+      <p>List action <strong>Clone</strong> copies schema and settings, generates a new UUID/slug/path, and leaves the copy <strong>unpublished</strong>.</p>
+      <h3>Export JSON (admin)</h3>
+      <p>On Edit, <strong>Export JSON</strong> writes <code>storage/app/form-builder-exports/{slug}.json</code> using <code>document()</code>.</p>
+      <h3>CLI import/export</h3>
+<pre><code>php artisan form-builder:export --slug=contact-us
+php artisan form-builder:import storage/app/form-builder-export.json --publish</code></pre>
+      <h3>Import from Dynamic Fields (developer)</h3>
+      <p>There is no Filament button in v1.0.0. In tinker, a seeder, or your own action:</p>
+<pre><code>$form = \Spiggle\FormBuilder\Models\Form::query()-&gt;where('slug', 'contact-us')-&gt;first();
+$form-&gt;importCustomFields([1, 2, 3]); // custom_fields.id values</code></pre>
+      <p>Fields append to the last section as a snapshot. Later edits in Custom Fields do not update the form. Submissions still go to <code>form_builder_submissions</code>, never <code>custom_field_values</code>.</p>
+
+      <h2 id="dev">Validate and store from code</h2>
+<pre><code>$rules = app(\Spiggle\FormBuilder\Services\ValidationBuilder::class)-&gt;rules($form);
+$ok = Validator::make(['data' =&gt; $payload], $rules)-&gt;passes();
+
+app(\Spiggle\FormBuilder\Services\SubmissionManager::class)
+    -&gt;capture($form, $payload, request(), ['source' =&gt; 'api']);</code></pre>
+      <p>Listen to <code>Spiggle\FormBuilder\Events\FormSubmitted</code> to send mail to <code>notify_emails</code> (addresses are stored on the form; v1 does not send mail by itself).</p>
+
+      <div class="pager">
+        <a href="architecture.html">← Architecture</a>
+        <a href="features.html">Features →</a>
+      </div>
+    </main>
+    <p class="footer">Spiggle Form Builder v1.0.0 · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues">Issues</a></p>
+  </div>
+</body>
+</html>
+

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spiggle Form Builder — Public forms for Laravel & Filament</title>
+  <meta name="description" content="Free Core package for public forms in Filament. Pro adds wizard/tabs/pages, XLSX/PDF export, charts, and clone.">
+  <link rel="canonical" href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="#">Spiggle Form Builder <span>Core</span></a>
+      <nav class="nav">
+        <a class="hide-mobile" href="#features">Features</a>
+        <a class="hide-mobile" href="#demo">Demo</a>
+        <a class="hide-mobile" href="#pricing">Pricing</a>
+        <a class="hide-mobile" href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues">Issues</a>
+        <a class="btn btn-outline" href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <div class="hero-kicker">Laravel-13 · Filament 5</div>
+        <h1>Public forms without custom frontends</h1>
+        <p class="hero-lead">Build forms in Filament, publish a public URL, and collect submissions — validation, sanitization, and a submission inbox included.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">Get Community Edition</a>
+          <a class="btn btn-accent" href="https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134">Buy Pro license</a>
+          <a class="btn btn-outline" href="https://skillbobby.com/larafill/public/admin/login" target="_blank" rel="noopener">Live demo</a>
+        </div>
+        <figure class="hero-shot">
+          <iframe
+            src="https://www.youtube.com/embed/c5VcwW3_Vfk"
+            title="Spiggle Form Builder demo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen></iframe>
+        </figure>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="container">
+        <div class="section-label">Features</div>
+        <h2 class="section-title">Built for intake and ops teams</h2>
+        <p class="section-desc">Start publishing forms for free with our open-source Community Edition on <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a>. Need more power? Upgrade to unlock wizard/tabs/pages layouts, XLSX/PDF exports, analytics charts, form clone, and Dynamic Fields import.</p>
+        <div class="features-grid">
+          <article class="feature-card">
+            <div class="feature-visual flow-visual" aria-hidden="true">
+              <div class="flow-step">Form Builder</div>
+              <svg viewBox="0 0 40 14" role="img" aria-label="Flow arrow">
+                <path d="M2 7h30"></path>
+                <path d="M26 2l6 5-6 5"></path>
+              </svg>
+              <div class="flow-step flow-step-accent">Save</div>
+              <svg viewBox="0 0 40 14" role="img" aria-label="Flow arrow">
+                <path d="M2 7h30"></path>
+                <path d="M26 2l6 5-6 5"></path>
+              </svg>
+              <div class="flow-step">Live public URL</div>
+            </div>
+            <h3>No frontend required</h3>
+            <p>Compose sections and fields in the panel, hit publish, and share a public URL that works without Filament CSS.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-visual table-visual" aria-hidden="true">
+              <div class="table-header">
+                <span>Name</span>
+                <span>Status</span>
+                <span class="col-highlight">Custom: Tier</span>
+              </div>
+              <div class="table-row">
+                <span>Acme Inc</span>
+                <span>Active</span>
+                <span class="cell-badge">Gold</span>
+              </div>
+              <div class="table-row">
+                <span>Nova Shop</span>
+                <span>Pending</span>
+                <span class="cell-badge">Silver</span>
+              </div>
+            </div>
+            <h3>Submission inbox included</h3>
+            <p>Review, filter, archive, and CSV-export responses from Filament — bulk actions included.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="field-types" class="field-types-section">
+      <div class="container field-types-container">
+        <div class="field-types-heading">
+          <div class="section-label">Core layouts</div>
+          <h2 class="section-title">Single-page forms, ready to publish</h2>
+          <p class="section-desc">Community Edition ships the builder, public renderer, and CSV export — no Pro license required.</p>
+        </div>
+        <div class="field-showcase" aria-label="Core field types visual showcase">
+          <article class="field-panel">
+            <h3>Inputs</h3>
+            <label class="mock-row mock-row-neutral">
+              <span>Text</span>
+              <input type="text" placeholder="Enter headline">
+            </label>
+            <label class="mock-row mock-row-focus">
+              <span>Email</span>
+              <input type="email" placeholder="you@example.com">
+              <small class="state-note">Focused field state</small>
+            </label>
+            <label class="mock-row mock-row-disabled">
+              <span>Phone</span>
+              <input type="tel" placeholder="+1 (555) 123-4567" disabled>
+              <small class="state-note">Disabled until email is verified</small>
+            </label>
+            <label class="mock-row mock-row-success">
+              <span>URL</span>
+              <input type="url" placeholder="https://example.com">
+              <small class="state-note">Looks good and reachable</small>
+            </label>
+            <label class="mock-row mock-row-invalid">
+              <span>Number</span>
+              <input type="number" placeholder="0">
+              <small>Must be greater than 0</small>
+            </label>
+          </article>
+
+          <article class="field-panel">
+            <h3>Textarea</h3>
+            <label class="mock-row mock-row-focus">
+              <span>Description</span>
+              <textarea rows="6" placeholder="Write a short summary..."></textarea>
+              <small class="state-note">Active editing area</small>
+            </label>
+            <label class="mock-row mock-row-success">
+              <span>Notes</span>
+              <textarea rows="3" placeholder="Optional internal note"></textarea>
+              <small class="state-note">Saved as helper note</small>
+            </label>
+          </article>
+
+          <article class="field-panel">
+            <h3>Choices</h3>
+            <label class="mock-row mock-row-neutral">
+              <span>Select</span>
+              <select>
+                <option>Choose status</option>
+              </select>
+            </label>
+            <div class="mock-choice-group" role="group" aria-label="Radio examples">
+              <p>Radio</p>
+              <label><input type="radio" name="priority" checked> <span>High priority</span></label>
+              <label><input type="radio" name="priority"> <span>Normal</span></label>
+              <label><input type="radio" name="priority"> <span>Low</span></label>
+            </div>
+          </article>
+
+          <article class="field-panel">
+            <h3>Date and Boolean</h3>
+            <label class="mock-row">
+              <span>Date</span>
+              <input type="date">
+            </label>
+            <label class="mock-row">
+              <span>DateTime</span>
+              <input type="datetime-local">
+            </label>
+            <div class="mock-toggle-row">
+              <span>Boolean</span>
+              <button type="button" aria-label="Boolean toggle preview">
+                <i></i>
+              </button>
+            </div>
+            <div class="mock-toggle-row">
+              <span>Toggle</span>
+              <button type="button" class="is-on" aria-label="Toggle preview enabled">
+                <i></i>
+              </button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="demo">
+      <div class="container">
+        <div class="section-label">Demo</div>
+        <h2 class="section-title">Try it live</h2>
+        <div class="demo-panel">
+          <div class="demo-pane">
+            <h3>Hosted demo</h3>
+            <p>Log into a Filament panel with Form Builder already installed.</p>
+            <div class="demo-creds">
+              <strong>URL</strong><br>
+              <a href="https://skillbobby.com/larafill/public/admin/login" target="_blank" rel="noopener">skillbobby.com/larafill/public/admin/login</a><br><br>
+              <strong>Email</strong> demo@user.net<br>
+              <strong>Password</strong> password
+            </div>
+            <p class="demo-hint">Under <strong>Forms</strong> to manage definitions and open a public URL.</p>
+            <a class="btn btn-primary" href="https://skillbobby.com/larafill/public/admin/login" target="_blank" rel="noopener">Open demo</a>
+          </div>
+
+          <div class="demo-divider" aria-hidden="true"></div>
+
+          <div class="demo-pane demo-steps">
+            <h3>Quick demo steps</h3>
+            <ol>
+              <li>Open demo and sign in.</li>
+              <li>Go to Forms → Forms.</li>
+              <li>Create a form, add fields, set Published.</li>
+              <li>Open the public URL and submit a test response.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <div class="container">
+        <div class="pricing-head">
+          <div class="section-label">Pricing</div>
+          <h2 class="section-title">Community edition is free — upgrade when you need multi-step layouts and premium exports.</h2>
+          <p class="section-desc">Start publishing forms for free with our open-source Community Edition on <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a>. Need more power? Upgrade to unlock wizard/tabs/pages layouts, XLSX/PDF exports, analytics charts, form clone, and Dynamic Fields import.</p>
+        </div>
+        <div class="pricing-grid">
+          <article class="plan">
+            <div class="plan-tag">1 production site</div>
+            <h3>Solo</h3>
+            <div class="plan-price">$29.99 <small>/year</small></div>
+            <p class="plan-note">Pro license · 1 year of updates</p>
+            <ul>
+              <li>Everything in Community</li>
+              <li>Wizard, tabs &amp; pages layouts</li>
+              <li>XLSX &amp; PDF export</li>
+              <li>Analytics charts</li>
+              <li>Form clone &amp; Dynamic Fields import</li>
+              <li>1 production site</li>
+            </ul>
+            <a class="btn btn-outline" href="https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134">Buy Solo license</a>
+          </article>
+
+          <article class="plan popular">
+            <span class="badge">Most popular</span>
+            <div class="plan-tag">Up to 5 sites</div>
+            <h3>Pro</h3>
+            <div class="plan-price">$89.99 <small>/year</small></div>
+            <p class="plan-note">Pro license · 1 year of updates</p>
+            <ul>
+              <li>Everything in Community</li>
+              <li>Wizard, tabs &amp; pages layouts</li>
+              <li>XLSX &amp; PDF export</li>
+              <li>Analytics charts</li>
+              <li>Form clone &amp; Dynamic Fields import</li>
+              <li>Up to 5 production sites</li>
+            </ul>
+            <a class="btn btn-accent" href="https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134">Buy Pro license</a>
+          </article>
+
+          <article class="plan">
+            <div class="plan-tag">Unlimited sites</div>
+            <h3>Business</h3>
+            <div class="plan-price">$199.99 <small>/year</small></div>
+            <p class="plan-note">Pro license · priority support</p>
+            <ul>
+              <li>Everything in Pro</li>
+              <li>Unlimited production sites</li>
+              <li>Priority developer support</li>
+              <li>Built for SaaS platforms</li>
+              <li>1 year of updates</li>
+            </ul>
+            <a class="btn btn-outline" href="https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134">Get Business license</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <div class="section-label" style="text-align:center">FAQ</div>
+        <h2 class="section-title" style="text-align:center;margin-bottom:32px">Quick answers</h2>
+        <div class="faq">
+          <details open>
+            <summary>Do I need a developer for every new form?</summary>
+            <p>No. Your team builds forms in the Filament panel — add sections and fields, set validation, publish. The public renderer and submission inbox are included. No custom frontend required for each intake form.</p>
+          </details>
+          <details>
+            <summary>What does Community Edition include?</summary>
+            <p>Single-page layouts, public Livewire renderer, submission manager, CSV export, form JSON export/import, seed/verify commands, and audit logging for exports and bulk actions.</p>
+          </details>
+          <details>
+            <summary>What is Pro-only?</summary>
+            <p>Wizard, tabs, and pages layouts; XLSX and PDF export; analytics charts; form clone; import from Dynamic Fields; and email notify address hooks for your <code>FormSubmitted</code> listeners.</p>
+          </details>
+          <details>
+            <summary>Does Form Builder work with Dynamic Fields?</summary>
+            <p>Yes. When Dynamic Fields is installed, Form Builder reuses the same field type catalog. Pro can also import existing custom field definitions into a form schema.</p>
+          </details>
+          <details>
+            <summary>Where are forms published?</summary>
+            <p>By default at <code>/forms/{base_path}</code>. You can change the prefix with <code>FORM_BUILDER_ROUTE_PREFIX</code>, or enable root-path interception carefully with <code>FORM_BUILDER_ROOT_PATHS</code>.</p>
+          </details>
+          <details>
+            <summary>How does licensing work?</summary>
+            <p>Community Edition is free and open-source on GitHub. Paid Solo, Pro, and Business unlock premium Form Builder features. After purchase, activate your license key under Forms License in Filament. Site limits: Solo 1, Pro 5, Business unlimited.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section id="plugins">
+      <div class="container">
+        <div class="section-label">Works with</div>
+        <h2 class="section-title">More Spiggle plugins</h2>
+        <div class="plugins">
+          <article class="plugin-card">
+            <h3>Dynamic Fields Core</h3>
+            <p>Free MIT EAV custom fields for any Eloquent model — Filament UI, typed values, and seed/verify tooling.</p>
+            <a class="btn btn-outline" href="https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/">View Dynamic Fields →</a>
+          </article>
+          <article class="plugin-card">
+            <h3>Form Builder Pro</h3>
+            <p>Licensed Pro features and license activation. Installs alongside Core.</p>
+            <a class="btn btn-accent" href="https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134">Get Pro license</a>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>© <span id="y"></span> Spiggle · Form Builder Core</div>
+      <nav class="footer-links">
+        <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a>
+        <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues">Issues</a>
+        <a href="guide/">Docs</a>
+        <a href="https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/">Dynamic Fields</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
+
+
+
+
+

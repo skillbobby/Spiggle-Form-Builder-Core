@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Features — Spiggle Form Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+    </a>
+    <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
+    <nav class="site-nav" aria-label="Documentation">
+      <a href="../index.html">Home</a>
+      <a href="index.html">Overview</a>
+      <a href="usage.html">Usage</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="workflows.html">Workflows</a>
+      <a class="active" href="features.html">Features</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <aside class="toc">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#builder">Builder UI</a></li>
+        <li><a href="#settings">Settings</a></li>
+        <li><a href="#layouts">Layouts</a></li>
+        <li><a href="#labels">Labels &amp; grid</a></li>
+        <li><a href="#types">Field types</a></li>
+        <li><a href="#public">Public forms</a></li>
+        <li><a href="#files">File uploads</a></li>
+        <li><a href="#inbox">Submissions</a></li>
+        <li><a href="#export">Exports</a></li>
+        <li><a href="#import">Import custom fields</a></li>
+      </ol>
+    </aside>
+
+    <main class="content" id="main">
+      <p class="meta"><span class="badge navy">Features</span> <span class="badge">every control</span></p>
+      <h1>User support for every feature</h1>
+      <p class="lead">Matches the Filament builder, public Livewire page, and submission inbox in v1.0.0.</p>
+
+      <h2 id="builder">Builder UI</h2>
+      <ul>
+        <li>Three tabs: <strong>Settings</strong>, <strong>Builder</strong>, <strong>Preview</strong>. Active tab persists in the query string.</li>
+        <li>Nested repeaters are <strong>collapsed</strong>, <strong>collapsible</strong>, <strong>cloneable</strong>, and <strong>drag-reorderable</strong> (Filament / SortableJS).</li>
+        <li>Collapsed section rows show the section title (or “Untitled section”).</li>
+        <li>Collapsed field rows show <code>label · type</code>.</li>
+        <li>Collapsed option rows show the option label.</li>
+        <li>Settings grid is one column on mobile, two from the <code>md</code> breakpoint.</li>
+        <li>Create form redirects to the list index.</li>
+        <li>List: name + public path description, layout badge, published icon, entries count, Open / Clone / Edit / Delete. Filters: layout, published.</li>
+        <li>View form: public URL, counts, schematic preview, charts, submissions relation, Open public form.</li>
+      </ul>
+
+      <h2 id="settings">Settings fields</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Field</th><th>Behavior</th></tr></thead>
+          <tbody>
+            <tr><td>Name</td><td>Required. Can auto-fill slug and public path.</td></tr>
+            <tr><td>Slug</td><td>Internal unique identifier (alpha-dash).</td></tr>
+            <tr><td>Public path</td><td>URL segment after the prefix. Unique; conflicts hashed.</td></tr>
+            <tr><td>Layout</td><td>single / wizard / tabs / pages (live — changes section add/delete rules).</td></tr>
+            <tr><td>Description</td><td>Shown on the public page under the title.</td></tr>
+            <tr><td>Default label position</td><td>above, inline, below, inside (placeholder).</td></tr>
+            <tr><td>Published</td><td>Off = hidden from public URL.</td></tr>
+            <tr><td>Active</td><td>Off = also excluded from published scope.</td></tr>
+            <tr><td>Success message</td><td>Default: “Thanks — your response has been recorded.”</td></tr>
+            <tr><td>Redirect after submit</td><td>Must be a URL. Shown as a Continue link after success, not an automatic HTTP redirect.</td></tr>
+            <tr><td>Notify emails</td><td>Tags of addresses stored on the form. v1 does not send mail; listen to <code>FormSubmitted</code> in the host.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="layouts">Layouts</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layout</th><th>When to use</th><th>Validation</th><th>Sample seed</th></tr></thead>
+          <tbody>
+            <tr><td>Single page</td><td>Short contact forms</td><td>All fields on submit</td><td>Contact Us — <code>/forms/contact-us</code></td></tr>
+            <tr><td>Wizard</td><td>Multi-step with a progress bar</td><td>Current step on Next; all on last Submit</td><td>Event Registration</td></tr>
+            <tr><td>Tabs</td><td>Related groups without gating</td><td>All on Submit</td><td>Job Application</td></tr>
+            <tr><td>Pages</td><td>Surveys that should save drafts between screens</td><td>Same gates as wizard; “Save and continue”</td><td>Customer Feedback</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="labels">Labels, overrides, and width</h2>
+      <ul>
+        <li><strong>Default label position</strong> on the form; each field can override.</li>
+        <li><strong>above</strong> — label then control (default).</li>
+        <li><strong>inline</strong> — CSS row layout on the public field.</li>
+        <li><strong>below</strong> — control then label.</li>
+        <li><strong>inside</strong> — no outer label; placeholder becomes the label text if placeholder is empty.</li>
+        <li><strong>Label override</strong> — runtime display label without changing the stored schema label (used by the public renderer, Filament preview, validation attributes, and submission display).</li>
+        <li><strong>Width</strong> — 1–12 of the grid; 12 is full, 6 is half. Always full width on small screens.</li>
+      </ul>
+
+      <h2 id="types">Field types</h2>
+      <p>Same keys as Dynamic Fields when that package is present. Fallback list is in config.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Type</th><th>Public control</th><th>Admin preview (Filament)</th><th>Validation default</th></tr></thead>
+          <tbody>
+            <tr><td>text</td><td>text input (blur)</td><td>TextInput</td><td>string</td></tr>
+            <tr><td>email</td><td>email (blur)</td><td>email TextInput</td><td>email</td></tr>
+            <tr><td>phone</td><td>tel</td><td>tel TextInput</td><td>string</td></tr>
+            <tr><td>url</td><td>url</td><td>url TextInput</td><td>url</td></tr>
+            <tr><td>number</td><td>number</td><td>numeric TextInput</td><td>numeric</td></tr>
+            <tr><td>textarea</td><td>textarea; rows from meta (default 4)</td><td>Textarea or RichEditor if <code>meta.use_editor</code></td><td>string</td></tr>
+            <tr><td>select</td><td>native select</td><td>Select</td><td>string; needs options</td></tr>
+            <tr><td>radio</td><td>radio group</td><td>Radio</td><td>needs options</td></tr>
+            <tr><td>multi_select</td><td>select multiple</td><td>Select multiple searchable</td><td>array</td></tr>
+            <tr><td>tags</td><td>text input, comma-separated (stored as array)</td><td>TagsInput with option suggestions</td><td>array</td></tr>
+            <tr><td>date</td><td>date</td><td>DatePicker</td><td>date</td></tr>
+            <tr><td>datetime</td><td>datetime-local</td><td>DateTimePicker</td><td>date</td></tr>
+            <tr><td>boolean / toggle</td><td>checkbox + label</td><td>Toggle</td><td>boolean</td></tr>
+            <tr><td>file</td><td>file input; optional multiple; “Uploading…”</td><td>FileUpload on form-builder disk</td><td>array</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code> / <code>visible_when_value</code> in the Filament preview; public Blade does not hide fields client-side in v1 (still submitted if present in DOM — prefer wizard steps if you need gated questions).</p>
+      <p>Option colors imported from Dynamic Fields are stored on schema options; the public renderer does not paint tag badges (admin submission view shows labels).</p>
+
+      <h2 id="public">Public forms</h2>
+      <ul>
+        <li>Self-contained CSS in the public layout (12-column grid, mobile stack).</li>
+        <li>Progress bar + “Step N of M” for wizard and pages.</li>
+        <li>Tab pills call <code>goToStep</code> (no step validation when switching tabs).</li>
+        <li>Only published+active forms; match on <code>base_path</code> or <code>slug</code>.</li>
+        <li>Logged-in users are stored on <code>user_id</code> when Auth is present.</li>
+      </ul>
+
+      <h2 id="files">File uploads</h2>
+      <ul>
+        <li>Livewire <code>WithFileUploads</code>. Toggle <strong>Allow multiple files</strong> on the field (<code>meta.multiple</code>).</li>
+        <li>Stored under <code>form-submissions/{form_id}</code> on <code>FORM_BUILDER_FILE_DISK</code> (default <code>public</code>).</li>
+        <li>Config <code>max_size_kb</code> is 5120; Livewire’s own upload limits also apply (<code>livewire.php</code> / php.ini).</li>
+        <li>Not Spatie Media Library (unlike Dynamic Fields file fields).</li>
+        <li>Exports list original file names separated by semicolons.</li>
+      </ul>
+
+      <h2 id="inbox">Submissions inbox</h2>
+      <ul>
+        <li>Preview column: first two answered fields as an excerpt.</li>
+        <li>UUID copyable, hidden by default.</li>
+        <li>Charts on the list and on the form view page.</li>
+        <li>Empty state: “Publish the form and share its public URL…”</li>
+      </ul>
+
+      <h2 id="export">Exports</h2>
+      <ul>
+        <li>Headers: id, uuid, form, status, created_at, then each field name (or union of keys if exporting mixed forms).</li>
+        <li>Arrays become comma-separated; file arrays become names joined with <code>; </code>.</li>
+        <li>Audit log action <code>export</code> with format, filename, count.</li>
+      </ul>
+
+      <h2 id="import">Import from custom fields</h2>
+      <p>Developer API copies definitions into the form schema (see Workflows). After import, edit the form in the builder as usual — it is a one-way snapshot.</p>
+
+      <div class="pager">
+        <a href="workflows.html">← Workflows</a>
+        <a href="support.html">Support →</a>
+      </div>
+    </main>
+    <p class="footer">Spiggle Form Builder v1.0.0 · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
+  </div>
+</body>
+</html>
+

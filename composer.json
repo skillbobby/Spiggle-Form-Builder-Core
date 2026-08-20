@@ -1,0 +1,56 @@
+{
+    "name": "spiggle/form-builder-core",
+    "description": "Filament Dynamic Form Builder for Laravel — Community Edition with single-page forms, public renderer, and CSV export.",
+    "type": "library",
+    "version": "1.1.0",
+    "license": "MIT",
+    "homepage": "https://github.com/skillbobby/Spiggle-Form-Builder-Core",
+    "support": {
+        "issues": "https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues",
+        "source": "https://github.com/skillbobby/Spiggle-Form-Builder-Core",
+        "docs": "https://skillbobby.github.io/Spiggle-Form-Builder-Core/"
+    },
+    "keywords": [
+        "laravel",
+        "filament",
+        "forms",
+        "form-builder",
+        "dynamic-forms",
+        "spiggle"
+    ],
+    "authors": [
+        {
+            "name": "Spiggle"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "filament/filament": "^3.3|^4.0|^5.0",
+        "illuminate/support": ">=11.0",
+        "illuminate/database": ">=11.0",
+        "illuminate/validation": ">=11.0",
+        "livewire/livewire": "^3.0|^4.0"
+    },
+    "suggest": {
+        "spiggle/dynamic-fields-core": "Reuse field types (text, select, tags, file, …) and mapper conventions.",
+        "spiggle/form-builder-pro": "Unlock wizard/tabs/pages layouts, XLSX/PDF export, charts, clone, and email notify hooks.",
+        "spatie/laravel-activitylog": "Audit logging for exports and bulk submission actions.",
+        "bezhansalleh/filament-shield": "Role-based access for form and submission resources."
+    },
+    "autoload": {
+        "psr-4": {
+            "Spiggle\\FormBuilder\\": "src/",
+            "Spiggle\\FormBuilder\\Database\\Factories\\": "database/factories/",
+            "Spiggle\\FormBuilder\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Spiggle\\FormBuilder\\FormBuilderServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

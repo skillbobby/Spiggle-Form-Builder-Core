@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usage — Spiggle Form Builder</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="site-header" id="top">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">S</span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+    </a>
+    <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
+    <nav class="site-nav" aria-label="Documentation">
+      <a href="../index.html">Home</a>
+      <a href="index.html">Overview</a>
+      <a class="active" href="usage.html">Usage</a>
+      <a href="architecture.html">Architecture</a>
+      <a href="workflows.html">Workflows</a>
+      <a href="features.html">Features</a>
+      <a href="support.html">Support</a>
+    </nav>
+  </header>
+
+  <div class="wrap">
+    <aside class="toc">
+      <h2>On this page</h2>
+      <ol>
+        <li><a href="#requirements">Requirements</a></li>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#publish">Publish &amp; migrate</a></li>
+        <li><a href="#plugin">Register the plugin</a></li>
+        <li><a href="#routing">Public routing</a></li>
+        <li><a href="#shield">Permissions / Shield</a></li>
+        <li><a href="#commands">Artisan commands</a></li>
+        <li><a href="#config">Configuration</a></li>
+        <li><a href="#api">PHP API</a></li>
+      </ol>
+    </aside>
+
+    <main class="content" id="main">
+      <p class="meta"><span class="badge navy">Usage</span> <span class="badge">v1.0.0</span></p>
+      <h1>Install, register, and configure</h1>
+      <p class="lead">Developer setup for a Laravel + Filament host. Admin form-building steps are in <a href="workflows.html">Workflows</a>.</p>
+
+      <h2 id="requirements">Requirements</h2>
+      <ul>
+        <li>PHP 8.2+</li>
+        <li>Laravel 11+</li>
+        <li>Filament <code>^3.3|^4.0|^5.0</code> (starter uses Filament v5 Schema: Section, Wizard, Tabs)</li>
+        <li>Livewire <code>^3.0|^4.0</code></li>
+        <li>A <code>users</code> table (submissions and audit logs may FK to users)</li>
+        <li>Optional: <code>spiggle/dynamic-fields</code> for shared types and import</li>
+        <li>Optional: Filament Shield / Spatie Permission</li>
+        <li>Optional: <code>spatie/laravel-activitylog</code> (audit also writes to package tables without it)</li>
+      </ul>
+      <p>Composer name: <code>spiggle/form-builder</code>. Namespace: <code>Spiggle\FormBuilder</code>. Plugin id: <code>spiggle-form-builder</code>.</p>
+
+      <h2 id="install">Install (path repository)</h2>
+<pre><code>{
+  "repositories": [
+    {
+      "type": "path",
+      "url": "packages/spiggle-form-builder",
+      "options": { "symlink": true }
+    }
+  ],
+  "require": {
+    "spiggle/form-builder": "*"
+  }
+}</code></pre>
+<pre><code>composer require spiggle/form-builder:@dev</code></pre>
+      <p>The service provider auto-registers. Livewire component name: <code>form-builder.public-form</code>.</p>
+
+      <h2 id="publish">Publish config, migrations, views</h2>
+<pre><code>php artisan vendor:publish --tag=form-builder-config
+php artisan vendor:publish --tag=form-builder-migrations
+php artisan vendor:publish --tag=form-builder-views
+php artisan migrate</code></pre>
+      <p>Migrations also auto-load from the package. Tables: <code>form_builder_forms</code>, <code>form_builder_submissions</code>, <code>form_builder_audit_logs</code> (prefixed so they do not collide with a generic <code>forms</code> table). Publishing views is only needed if you want to restyle the public renderer.</p>
+      <p>For public file downloads on the <code>public</code> disk: <code>php artisan storage:link</code>.</p>
+
+      <h2 id="plugin">Register the Filament plugin</h2>
+      <p>Starter: <code>app/Providers/Filament/AdminPanelProvider.php</code>.</p>
+<pre><code>use Spiggle\FormBuilder\Filament\FormBuilderPlugin;
+
+$panel
+    -&gt;plugin(\Spiggle\DynamicFields\Filament\DynamicFieldsPlugin::make()) // optional, recommended
+    -&gt;plugin(FormBuilderPlugin::make());</code></pre>
+      <p>Registers two resources:</p>
+      <ul>
+        <li><strong>Forms</strong> — navigation group Forms (sort 40), icon clipboard-document-list</li>
+        <li><strong>Submissions</strong> — same group (sort 41), icon inbox-stack</li>
+      </ul>
+
+      <h2 id="routing">Public routing</h2>
+      <p>Default: <code>GET /forms/{path}</code> (path can include slashes). Named route: <code>form-builder.public</code>. Only <strong>published and active</strong> forms resolve (<code>scopePublished</code>).</p>
+      <p>Environment:</p>
+      <ul>
+        <li><code>FORM_BUILDER_ROUTE_PREFIX</code> — default <code>forms</code>. Empty prefix serves at <code>/{base_path}</code> (easy to collide with <code>/admin</code>; keep a prefix unless you know the route table).</li>
+        <li><code>FORM_BUILDER_ROOT_PATHS=true</code> — registers <code>ResolveFormPath</code> on the <code>web</code> group so unmatched paths that match a published form’s <code>base_path</code> or <code>slug</code> still render. Reserved first segments: <code>admin</code>, <code>livewire</code>, <code>api</code>, <code>up</code>, <code>storage</code>, <code>vendor</code> (configurable).</li>
+      </ul>
+      <p><code>PathResolver</code> rejects reserved segments, existing form slugs/paths, and existing Laravel routes, then appends <code>-f{4-char-hash}</code> (example style: <code>contact-us-f8a1</code>).</p>
+
+      <h2 id="shield">Permissions / Shield</h2>
+      <p><code>AuthorizesFormBuilder::check($key)</code> uses the same fallback as Dynamic Fields: permission or <code>super_admin</code>; if the permission row does not exist yet, authenticated panel users keep access.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Config key</th><th>Default permission</th><th>Used for</th></tr></thead>
+          <tbody>
+            <tr><td><code>manage_forms</code></td><td><code>manage_forms</code></td><td>Forms resource</td></tr>
+            <tr><td><code>view_submissions</code></td><td><code>view_form_submissions</code></td><td>Submissions resource (or manage_forms)</td></tr>
+            <tr><td><code>export_submissions</code></td><td><code>export_form_submissions</code></td><td>Export actions</td></tr>
+            <tr><td><code>manage_submissions</code></td><td><code>manage_form_submissions</code></td><td>Reserved for host policies</td></tr>
+          </tbody>
+        </table>
+      </div>
+<pre><code>php artisan shield:generate --all</code></pre>
+      <p>Then assign those permissions to the roles that should manage forms vs only view/export submissions.</p>
+
+      <h2 id="commands">Artisan commands</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>php artisan form-builder:seed</code></td>
+              <td>Seeds Contact Us, Event Registration, Job Application, Customer Feedback (plus sample submissions). <code>--fresh</code> deletes those slugs first.</td>
+            </tr>
+            <tr>
+              <td><code>php artisan form-builder:verify</code></td>
+              <td>Checks tables, FieldCatalog, builder UX contracts, validation, sanitization, clone, routing, CSV/XLSX/PDF export.</td>
+            </tr>
+            <tr>
+              <td><code>php artisan form-builder:export</code></td>
+              <td>Portable JSON documents. Options: <code>--slug=</code>, <code>--path=</code> (default <code>storage/app/form-builder-export.json</code>).</td>
+            </tr>
+            <tr>
+              <td><code>php artisan form-builder:import {path}</code></td>
+              <td>Import documents. <code>--publish</code> marks them published. New unique slugs/paths are generated.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="config">Configuration</h2>
+      <p>Published file: <code>config/form-builder.php</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Key</th><th>Default</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td><code>schema_version</code></td><td><code>1.0</code></td><td>Portable document version</td></tr>
+            <tr><td><code>route_prefix</code></td><td><code>forms</code></td><td>Public URL prefix</td></tr>
+            <tr><td><code>root_paths</code></td><td>false</td><td>Vanity root interceptor</td></tr>
+            <tr><td><code>reserved_paths</code></td><td>admin, livewire, api, up, storage, vendor</td><td>Never used as form paths</td></tr>
+            <tr><td><code>submissions.statuses</code></td><td>new, reviewed, archived, spam</td><td>Inbox statuses</td></tr>
+            <tr><td><code>submissions.store_ip</code></td><td>true</td><td>Store request IP</td></tr>
+            <tr><td><code>submissions.hash_ip</code></td><td>false</td><td>SHA-256 the IP if stored</td></tr>
+            <tr><td><code>submissions.store_user_agent</code></td><td>true</td><td>UA truncated to 512 chars</td></tr>
+            <tr><td><code>submissions.sanitize_html</code></td><td>true</td><td>Strip tags; rich fields keep a small whitelist</td></tr>
+            <tr><td><code>files.disk / directory / max_size_kb</code></td><td>public, form-submissions, 5120</td><td>Public file uploads</td></tr>
+            <tr><td><code>exports.disk / directory / queue / formats</code></td><td>local, form-builder-exports, default, csv/xlsx/pdf</td><td>Export files</td></tr>
+            <tr><td><code>notify.enabled / mail_from</code></td><td>true, null</td><td>Reserved for host mailers — see Features</td></tr>
+            <tr><td><code>container_types</code></td><td>single, wizard, tabs, pages</td><td>Layouts</td></tr>
+            <tr><td><code>label_positions</code></td><td>above, inline, below, inside</td><td>Public labels</td></tr>
+            <tr><td><code>field_types</code></td><td>same list as Dynamic Fields</td><td>Used when Dynamic Fields is absent</td></tr>
+            <tr><td><code>drafts.enabled / session_key</code></td><td>true, <code>form_builder_drafts</code></td><td>Wizard/pages session drafts</td></tr>
+            <tr><td><code>validation_hooks</code></td><td>(unset)</td><td>Optional callable <code>fn (Form, $rules): array</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 id="api">Useful PHP API</h2>
+<pre><code>use Spiggle\FormBuilder\Models\Form;
+
+$form = Form::query()-&gt;published()-&gt;where('base_path', 'contact-us')-&gt;first();
+$form-&gt;publicUrl();
+$form-&gt;document();          // portable JSON object
+$form-&gt;fields();            // flattened field arrays
+$form-&gt;cloneForm();         // unpublished copy, new path
+$form-&gt;importCustomFields([1, 2, 3]); // Dynamic Fields ids
+
+app(\Spiggle\FormBuilder\Services\SubmissionManager::class)
+    -&gt;capture($form, $data, request(), ['source' =&gt; 'api']);</code></pre>
+
+      <div class="pager">
+        <a href="index.html">← Overview</a>
+        <a href="architecture.html">Architecture →</a>
+      </div>
+    </main>
+    <p class="footer">Spiggle Form Builder v1.0.0 · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues">Report an issue</a></p>
+  </div>
+</body>
+</html>
+
