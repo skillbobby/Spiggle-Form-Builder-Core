@@ -9,6 +9,10 @@ return [
     */
     'upsell' => [
         'checkout_url' => env('FORM_BUILDER_CHECKOUT_URL', env('LEMON_SQUEEZY_CHECKOUT_URL', 'https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134')),
+        'checkout_allowed_hosts' => array_values(array_filter(array_map(
+            'trim',
+            explode(',', (string) env('FORM_BUILDER_CHECKOUT_ALLOWED_HOSTS', 'lemonsqueezy.com'))
+        ))),
     ],
 
     /*

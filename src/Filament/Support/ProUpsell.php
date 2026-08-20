@@ -14,9 +14,11 @@ class ProUpsell
             config('form-builder.licensing.checkout_url')
             ?: config('form-builder.upsell.checkout_url', '')
         ));
+
+        $url = self::sanitizeCheckoutUrl($url);
         $domain = (string) config('app.url');
 
-        if ($url === '') {
+        if ($url === null) {
             $page = 'Spiggle\\FormBuilder\\Pro\\Filament\\Pages\\ManageAddonLicense';
             if (class_exists($page)) {
                 try {
@@ -32,6 +34,45 @@ class ProUpsell
         $separator = str_contains($url, '?') ? '&' : '?';
 
         return $url.$separator.'checkout[custom][domain]='.urlencode($domain);
+    }
+
+    /**
+     * HTTPS-only checkout URLs; host must match allowlist when configured.
+     */
+    public static function sanitizeCheckoutUrl(?string $url): ?string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '' || ! filter_var($url, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        $parts = parse_url($url);
+        $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+        $host = strtolower((string) ($parts['host'] ?? ''));
+
+        if ($scheme !== 'https' || $host === '') {
+            return null;
+        }
+
+        $allowed = config('form-builder.licensing.checkout_allowed_hosts')
+            ?? config('form-builder.upsell.checkout_allowed_hosts', ['lemonsqueezy.com']);
+
+        if (is_array($allowed) && $allowed !== []) {
+            $ok = false;
+            foreach ($allowed as $suffix) {
+                $suffix = strtolower(ltrim(trim((string) $suffix), '.'));
+                if ($suffix !== '' && ($host === $suffix || str_ends_with($host, '.'.$suffix))) {
+                    $ok = true;
+                    break;
+                }
+            }
+            if (! $ok) {
+                return null;
+            }
+        }
+
+        return $url;
     }
 
     public static function notify(string $feature): void
