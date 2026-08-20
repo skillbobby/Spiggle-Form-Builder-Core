@@ -2,3 +2,12 @@
 /node_modules/
 .phpunit.result.cache
 .DS_Store
+*.zip
+.env
+.env.*
+*.license
+auth.json
+SHOP_READY.md
+BRANCH.md
+docs/licensing.md
+docs/guide-lemonsqueezy.md
