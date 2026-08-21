@@ -8,7 +8,10 @@ return [
     |--------------------------------------------------------------------------
     */
     'upsell' => [
-        'checkout_url' => env('FORM_BUILDER_CHECKOUT_URL', env('LEMON_SQUEEZY_CHECKOUT_URL', 'https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134')),
+        'checkout_url' => env(
+            'FORM_BUILDER_CHECKOUT_URL_PRO',
+            env('FORM_BUILDER_CHECKOUT_URL', 'https://kodesmart.lemonsqueezy.com/checkout/buy/c23b259f-7845-41c3-aa24-61e92c29dc72?enabled=2043888')
+        ),
         'checkout_allowed_hosts' => array_values(array_filter(array_map(
             'trim',
             explode(',', (string) env('FORM_BUILDER_CHECKOUT_ALLOWED_HOSTS', 'lemonsqueezy.com'))
@@ -133,6 +136,7 @@ return [
         'wizard' => 'Wizard',
         'tabs' => 'Tabs',
         'pages' => 'Pages',
+        'accordion' => 'Accordion',
     ],
 
     'label_positions' => [

@@ -9,7 +9,7 @@
 
 Create forms in the admin panel, share a public URL, and collect submissions without shipping a custom frontend for every intake form.
 
-**[Watch the demo on YouTube →](https://youtu.be/t2MORdJdcBg)**
+**[Watch the demo on YouTube →](https://youtu.be/HtSdjyPaJhw)**
 
 | | |
 |---|---|
@@ -62,9 +62,9 @@ Need multi-step flows, premium exports, or analytics? Upgrade to **Form Builder 
 | **Email notify hooks** | Store notify addresses for your `FormSubmitted` listeners |
 | **License management** | Activate and manage your Pro license in Filament |
 
-**[Get Pro license](https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134)**
+**[Get Pro license](https://kodesmart.lemonsqueezy.com/checkout/buy/c23b259f-7845-41c3-aa24-61e92c29dc72?enabled=2043888)**
 
-Business / unlimited-site licensing: **[Get Business license](https://kodesmart.lemonsqueezy.com/checkout/buy/363bfd12-ed05-42aa-b04b-f9a4a5e2c134)**.
+Business / unlimited-site licensing: **[Get Business license](https://kodesmart.lemonsqueezy.com/checkout/buy/9a5c685c-afb5-4ef8-a61c-f4798cc8d1d2?enabled=2043889)**.
 
 ---
 
@@ -145,6 +145,7 @@ php artisan form-builder:seed
 ## Related
 
 - **[Full documentation](https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/)** — architecture, workflows, configuration
+- **[Demo video](https://youtu.be/HtSdjyPaJhw)** — Forms, public URL, builder, and submissions
 - **[Live demo](https://skillbobby.com/larafill/public/admin/login)** — `demo@user.net` / `password`
 - **[Spiggle Dynamic Fields Core](https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/)** — reusable field types for Eloquent models
 
