@@ -33,6 +33,14 @@ jobs:
           if not cur:
               sys.exit("No Package vN.N.N in README")
 
+          parents = subprocess.check_output(
+              ["git", "rev-list", "--parents", "-n", "1", "HEAD"],
+              text=True,
+          ).split()
+          if len(parents) > 2:
+              print("Merge commit — skip bump")
+              sys.exit(0)
+
           try:
               old_text = subprocess.check_output(
                   ["git", "show", "HEAD~1:README.md"],
@@ -80,6 +88,10 @@ jobs:
           print(new)
           Path("/tmp/spiggle-display-version").write_text(new, encoding="utf-8")
           PY
+          if [ ! -f /tmp/spiggle-display-version ]; then
+            echo "No version bump"
+            exit 0
+          fi
           new=$(cat /tmp/spiggle-display-version)
           git config user.name "Junior"
           git config user.email "nathanjun876@gmail.com"
