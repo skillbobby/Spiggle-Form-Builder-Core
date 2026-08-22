@@ -81,8 +81,8 @@ jobs:
           Path("/tmp/spiggle-display-version").write_text(new, encoding="utf-8")
           PY
           new=$(cat /tmp/spiggle-display-version)
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "Junior"
+          git config user.email "nathanjun876@gmail.com"
           git add README.md docs || true
           git diff --cached --quiet && echo "No version bump" && exit 0
           git commit -m "Bump package display to v${new} [skip update]"
