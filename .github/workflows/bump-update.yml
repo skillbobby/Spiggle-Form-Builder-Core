@@ -1,4 +1,4 @@
-name: Bump update
+name: Bump package display
 
 on:
   push:
@@ -15,29 +15,75 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - name: Increment UPDATE, README, and Pages footer
+      - name: Increment README Package patch (1–9, then next minor)
         run: |
-          set -euo pipefail
-          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-            if git diff --name-only HEAD~1 HEAD | grep -qx UPDATE; then
-              echo "UPDATE already changed in this push"
-              exit 0
-            fi
-          fi
-          n=0
-          if [ -f UPDATE ]; then
-            n=$(tr -d '[:space:]' < UPDATE)
-          fi
-          n=$((n + 1))
-          printf '%s\n' "$n" > UPDATE
-          if [ -f README.md ]; then
-            sed -i -E "s/(\\| \\*\\*Update\\*\\* \\| )[0-9]+/\\1${n}/" README.md
-          fi
-          if [ -d docs ]; then
-            find docs -name '*.html' -exec sed -i -E "s/(class=\"footer-update\">update )[0-9]+/\\1${n}/g" {} +
-          fi
+          python3 <<'PY'
+          import re, subprocess, sys
+          from pathlib import Path
+
+          def package_version(text: str) -> str | None:
+              m = re.search(r"\*\*Package\*\* \| `[^`]+` v(\d+\.\d+\.\d+)", text)
+              return m.group(1) if m else None
+
+          readme = Path("README.md")
+          if not readme.is_file():
+              sys.exit("README.md missing")
+          text = readme.read_text(encoding="utf-8")
+          cur = package_version(text)
+          if not cur:
+              sys.exit("No Package vN.N.N in README")
+
+          try:
+              old_text = subprocess.check_output(
+                  ["git", "show", "HEAD~1:README.md"],
+                  text=True,
+                  stderr=subprocess.DEVNULL,
+              )
+              old = package_version(old_text)
+              if old and old != cur:
+                  print(f"Package version already changed ({old} -> {cur})")
+                  sys.exit(0)
+          except subprocess.CalledProcessError:
+              pass
+
+          major, minor, patch = (int(p) for p in cur.split("."))
+          if patch >= 9:
+              minor += 1
+              patch = 0
+          else:
+              patch += 1
+          new = f"{major}.{minor}.{patch}"
+
+          text, n = re.subn(
+              r"(\*\*Package\*\* \| `[^`]+` )v\d+\.\d+\.\d+",
+              rf"\1v{new}",
+              text,
+              count=1,
+          )
+          if n != 1:
+              sys.exit("Failed to rewrite README Package version")
+          readme.write_text(text, encoding="utf-8")
+
+          docs = Path("docs")
+          if docs.is_dir():
+              for html in docs.rglob("*.html"):
+                  body = html.read_text(encoding="utf-8")
+                  html.write_text(
+                      re.sub(
+                          r'(class="footer-update">)v\d+\.\d+\.\d+',
+                          rf"\1v{new}",
+                          body,
+                      ),
+                      encoding="utf-8",
+                  )
+
+          print(new)
+          Path("/tmp/spiggle-display-version").write_text(new, encoding="utf-8")
+          PY
+          new=$(cat /tmp/spiggle-display-version)
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add UPDATE README.md docs || true
-          git commit -m "Bump update to ${n} [skip update]"
+          git add README.md docs || true
+          git diff --cached --quiet && echo "No version bump" && exit 0
+          git commit -m "Bump package display to v${new} [skip update]"
           git push
