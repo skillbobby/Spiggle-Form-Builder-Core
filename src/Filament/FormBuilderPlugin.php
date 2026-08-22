@@ -34,9 +34,8 @@ class FormBuilderPlugin implements Plugin
             FormSubmissionResource::class,
         ]);
 
-        $licensePage = 'Spiggle\\FormBuilder\\Pro\\Filament\\Pages\\ManageAddonLicense';
-        if (class_exists($licensePage)) {
-            $panel->pages([$licensePage]);
+        if (class_exists(\Spiggle\DynamicFields\Licensing\Filament\SpiggleLicensingPlugin::class)) {
+            $panel->plugin(\Spiggle\DynamicFields\Licensing\Filament\SpiggleLicensingPlugin::make());
         }
     }
 

@@ -32,7 +32,7 @@
         "livewire/livewire": "^3.0|^4.0"
     },
     "suggest": {
-        "spiggle/dynamic-fields-core": "Reuse field types (text, select, tags, file, …) and mapper conventions.",
+        "spiggle/dynamic-fields-core": "Reuse field types and mapper conventions; unified Spiggle Pro license page (Spiggle\\DynamicFields\\Licensing).",
         "spiggle/form-builder-pro": "Unlock wizard/tabs/pages layouts, XLSX/PDF export, charts, clone, and email notify hooks.",
         "spatie/laravel-activitylog": "Audit logging for exports and bulk submission actions.",
         "bezhansalleh/filament-shield": "Role-based access for form and submission resources."

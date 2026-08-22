@@ -19,13 +19,8 @@ class ProUpsell
         $domain = (string) config('app.url');
 
         if ($url === null) {
-            $page = 'Spiggle\\FormBuilder\\Pro\\Filament\\Pages\\ManageAddonLicense';
-            if (class_exists($page)) {
-                try {
-                    return $page::getUrl();
-                } catch (\Throwable) {
-                    return '';
-                }
+            if (class_exists(\Spiggle\DynamicFields\Licensing\AddonLicenseRegistry::class)) {
+                return \Spiggle\DynamicFields\Licensing\AddonLicenseRegistry::licensePageUrl();
             }
 
             return '';
