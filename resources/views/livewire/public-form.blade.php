@@ -3,6 +3,7 @@
     $type = $this->resolvedLayout();
     $total = max(1, count($containers));
     $progress = (int) round((($step + 1) / $total) * 100);
+    $navigable = in_array($type, ['wizard', 'pages', 'tabs', 'accordion'], true);
 @endphp
 
 <div>
@@ -19,6 +20,18 @@
             <h1 class="fb-title">{{ $formModel->name }}</h1>
             @if ($formModel->description)
                 <p class="fb-desc">{{ $formModel->description }}</p>
+            @endif
+
+            @if ($errors->any())
+                <div class="fb-alert" role="alert">
+                    <strong>Please fix {{ $errors->count() }} {{ \Illuminate\Support\Str::plural('error', $errors->count()) }}.</strong>
+                    <p class="fb-hint" style="margin:.35rem 0 0">We moved you to the first field that needs attention.</p>
+                    <ul>
+                        @foreach ($errors->all() as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                </div>
             @endif
 
             @if (in_array($type, ['wizard', 'pages'], true))
@@ -39,7 +52,23 @@
             @endif
 
             @foreach ($containers as $i => $container)
-                @php $visible = $type === 'single' || $i === $step; @endphp
+                @php
+                    $isAccordion = $type === 'accordion';
+                    $visible = $type === 'single'
+                        || ($isAccordion && in_array($i, $openSections, true))
+                        || (! $isAccordion && $i === $step);
+                @endphp
+
+                @if ($isAccordion)
+                    <h2 class="fb-acc-h">
+                        <button type="button" class="fb-acc-btn" wire:click="toggleSection({{ $i }})"
+                            aria-expanded="{{ $visible ? 'true' : 'false' }}">
+                            <span>{{ $container['label'] ?? 'Section '.($i + 1) }}</span>
+                            <span class="fb-acc-icon" aria-hidden="true">{{ $visible ? '▾' : '▸' }}</span>
+                        </button>
+                    </h2>
+                @endif
+
                 <section class="{{ $visible ? '' : 'fb-hidden' }}"
                     @if ($type === 'tabs') role="tabpanel" @endif
                     aria-label="{{ $container['label'] ?? 'Section' }}">
@@ -55,18 +84,21 @@
             @endforeach
 
             <div class="fb-actions">
-                @if (in_array($type, ['wizard', 'pages'], true) && $step > 0)
+                @if ($navigable && $step > 0)
                     <button type="button" class="fb-btn secondary" wire:click="previousStep">Back</button>
                 @endif
 
-                @if (in_array($type, ['wizard', 'pages'], true) && $step < $total - 1)
+                @if ($navigable && $step < $total - 1)
                     <button type="button" class="fb-btn" wire:click="nextStep">
                         {{ $type === 'pages' ? 'Save and continue' : 'Next' }}
                     </button>
-                @else
+                @endif
+
+                @if (! $navigable || $step === $total - 1)
                     <button type="submit" class="fb-btn" wire:loading.attr="disabled">Submit</button>
                 @endif
             </div>
         </form>
+        <x-filament-actions::modals />
     @endif
 </div>

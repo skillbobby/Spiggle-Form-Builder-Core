@@ -16,6 +16,7 @@ class ContainerTypes
             'wizard' => 'Wizard',
             'tabs' => 'Tabs',
             'pages' => 'Pages',
+            'accordion' => 'Accordion',
         ]);
     }
 
@@ -30,6 +31,14 @@ class ContainerTypes
     public static function isStepped(string $type): bool
     {
         return in_array($type, ['wizard', 'pages'], true);
+    }
+
+    /**
+     * Layouts that use Back / Next between sections.
+     */
+    public static function usesStepNav(string $type): bool
+    {
+        return in_array($type, ['wizard', 'pages', 'tabs', 'accordion'], true);
     }
 
     /**

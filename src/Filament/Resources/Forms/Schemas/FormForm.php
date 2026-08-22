@@ -8,13 +8,14 @@ use Filament\Forms\Components\TagsInput;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Html;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 use Spiggle\FormBuilder\Filament\Support\ProUpsell;
 use Spiggle\FormBuilder\Services\FormRenderer;
@@ -86,8 +87,8 @@ class FormForm
                         ->live()
                         ->afterStateUpdated(fn (?string $state, Set $set) => ProUpsell::guardLayout($state, $set))
                         ->helperText(FeatureCatalog::proUnlocked()
-                            ? 'Wizard and pages validate one section at a time. Tabs keep client state until submit.'
-                            : 'Community Edition includes single-page forms. Wizard, tabs, and pages require Pro.'),
+                            ? 'Wizard and pages validate one section at a time. Tabs and accordion include Back / Next. Accordion keeps every section heading visible.'
+                            : 'Without an active Pro license, wizard/tabs/pages/accordion still save but the public form renders as a single page.'),
                     Textarea::make('description')
                         ->rows(3)
                         ->columnSpanFull(),
@@ -290,16 +291,13 @@ class FormForm
             Section::make('Live layout preview')
                 ->description('Updates as you edit Settings and Builder. Open the public URL after publishing for the full interactive form.')
                 ->schema([
-                    TextEntry::make('schema_preview')
-                        ->hiddenLabel()
-                        ->html()
-                        ->state(function (Get $get): string {
-                            return app(FormRenderer::class)->schematicHtml([
-                                'name' => $get('name'),
-                                'container_type' => $get('container_type'),
-                                'schema' => $get('schema') ?? [],
-                            ]);
-                        }),
+                    Html::make(function (Get $get): HtmlString {
+                        return new HtmlString(app(FormRenderer::class)->schematicHtml([
+                            'name' => $get('name'),
+                            'container_type' => $get('container_type'),
+                            'schema' => $get('schema') ?? [],
+                        ]));
+                    })->columnSpanFull(),
                 ]),
         ];
     }

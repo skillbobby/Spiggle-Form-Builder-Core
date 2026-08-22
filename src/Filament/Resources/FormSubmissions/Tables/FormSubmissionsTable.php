@@ -69,7 +69,11 @@ class FormSubmissionsTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('form_id')
-                    ->label('Form')
+                    ->label('Forms')
+                    ->placeholder('All forms')
+                    ->multiple()
+                    ->searchable()
+                    ->preload()
                     ->options(fn (): array => Form::query()->orderBy('name')->pluck('name', 'id')->all())
                     ->visible(fn (): bool => $formId === null),
                 SelectFilter::make('status')->options($statuses),

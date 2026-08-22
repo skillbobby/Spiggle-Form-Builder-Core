@@ -117,6 +117,111 @@ class FormSubmission extends Model
         return $out;
     }
 
+    /**
+     * Admin infolist HTML for answers (inline styles; Filament v5 has no Tailwind utilities).
+     */
+    public function answersHtml(): string
+    {
+        $form = $this->form;
+        $data = $this->data ?? [];
+
+        if (! $form) {
+            return '<p style="opacity:.7">No form schema is attached to this submission.</p>';
+        }
+
+        $html = '<div style="display:flex;flex-direction:column;gap:18px">';
+
+        foreach ($form->fields() as $field) {
+            $name = $field['name'] ?? null;
+            if (! $name) {
+                continue;
+            }
+
+            $type = (string) ($field['type'] ?? 'text');
+            $label = (string) ($field['label_override'] ?: ($field['label'] ?? $name));
+            $value = $data[$name] ?? null;
+            $html .= '<div style="border-bottom:1px solid color-mix(in srgb, currentColor 12%, transparent);padding-bottom:12px">';
+            $html .= '<div style="font-size:11px;letter-spacing:.04em;text-transform:uppercase;opacity:.55;margin-bottom:6px">'.e($label).'</div>';
+            $html .= $this->formatAnswerHtml($field, $value, $type);
+            $html .= '</div>';
+        }
+
+        return $html.'</div>';
+    }
+
+    /**
+     * @param  array<string, mixed>  $field
+     */
+    protected function formatAnswerHtml(array $field, mixed $value, string $type): string
+    {
+        if ($value === null || $value === '' || $value === []) {
+            return '<div style="opacity:.45">—</div>';
+        }
+
+        if (FieldCatalog::isBoolean($type)) {
+            return '<div>'.(! empty($value) ? 'Yes' : 'No').'</div>';
+        }
+
+        if (FieldCatalog::requiresOptions($type)) {
+            $map = collect($field['options'] ?? [])->pluck('label', 'value')->all();
+            $items = is_array($value) ? $value : [$value];
+            $labels = collect($items)->map(fn ($v) => (string) ($map[(string) $v] ?? $v))->all();
+
+            if (in_array($type, ['tags', 'multi_select'], true) || is_array($value)) {
+                $badges = '';
+                foreach ($labels as $item) {
+                    $badges .= '<span style="display:inline-block;margin:0 6px 6px 0;padding:3px 10px;border-radius:999px;background:color-mix(in srgb, currentColor 10%, transparent);font-size:12px;font-weight:600">'.e($item).'</span>';
+                }
+
+                return $badges !== '' ? $badges : '<div style="opacity:.45">—</div>';
+            }
+
+            return '<div>'.e((string) ($labels[0] ?? '')).'</div>';
+        }
+
+        if (FieldCatalog::isFile($type) && is_array($value)) {
+            $parts = '';
+            foreach ($value as $file) {
+                if (! is_array($file)) {
+                    continue;
+                }
+                $name = e((string) ($file['name'] ?? basename((string) ($file['path'] ?? 'file'))));
+                $url = $file['url'] ?? null;
+                $parts .= $url
+                    ? '<div><a href="'.e((string) $url).'" target="_blank" rel="noopener">'.$name.'</a></div>'
+                    : '<div>'.$name.'</div>';
+            }
+
+            return $parts !== '' ? $parts : '<div style="opacity:.45">—</div>';
+        }
+
+        if ($type === 'url' && is_string($value)) {
+            $href = e($value);
+
+            return '<div><a href="'.$href.'" target="_blank" rel="noopener">'.$href.'</a></div>';
+        }
+
+        if ($type === 'email' && is_string($value)) {
+            $email = e($value);
+
+            return '<div><a href="mailto:'.$email.'">'.$email.'</a></div>';
+        }
+
+        if ($type === 'textarea' && ! empty($field['meta']['use_editor']) && is_string($value)) {
+            $safe = strip_tags($value, '<p><br><strong><b><em><i><u><ul><ol><li><a><h1><h2><h3><blockquote>');
+
+            return '<div style="line-height:1.5">'.$safe.'</div>';
+        }
+
+        if (is_array($value)) {
+            $text = collect($value)->map(fn ($v) => is_scalar($v) ? (string) $v : json_encode($v))->implode(', ');
+
+            return '<div>'.e($text).'</div>';
+        }
+
+        return '<div style="white-space:pre-wrap">'.e((string) $value).'</div>';
+    }
+
     public function excerpt(int $limit = 80): string
     {
         $parts = [];

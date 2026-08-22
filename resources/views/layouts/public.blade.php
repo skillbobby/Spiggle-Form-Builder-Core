@@ -1,12 +1,19 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="fi">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? config('app.name') }}</title>
-    @livewireStyles
+    @filamentStyles
+    @php
+        try {
+            echo \Filament\Facades\Filament::getDefaultPanel()->getTheme()?->getHtml();
+        } catch (\Throwable) {
+        }
+    @endphp
     <style>
+        [x-cloak] { display: none !important; }
         :root {
             --fb-bg: #f4f7fb;
             --fb-card: #ffffff;
@@ -55,6 +62,50 @@
         .fb-req { color: var(--fb-danger); }
         .fb-hint { font-size: .8rem; color: var(--fb-muted); }
         .fb-error { font-size: .8rem; color: var(--fb-danger); }
+        .fb-field.is-invalid .fb-input,
+        .fb-field.is-invalid .fb-select,
+        .fb-field.is-invalid .fb-textarea,
+        .fb-field.is-invalid .fb-rich,
+        .fb-field.is-invalid .fb-tags {
+            border-color: var(--fb-danger);
+            background: #fef2f2;
+        }
+        .fb-alert {
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #991b1b;
+            border-radius: 10px;
+            padding: .85rem 1rem;
+            margin: 0 0 1.25rem;
+        }
+        .fb-alert ul { margin: .5rem 0 0; padding-left: 1.1rem; }
+        .fb-tags {
+            display: flex; flex-wrap: wrap; gap: .4rem; align-items: center;
+            border: 1px solid var(--fb-border); border-radius: 10px; padding: .4rem .5rem; background: #fff;
+        }
+        .fb-tag {
+            display: inline-flex; align-items: center; gap: .25rem;
+            background: #fffbeb; border: 1px solid #fde68a; border-radius: 999px;
+            padding: .15rem .55rem .15rem .7rem; font-size: .8rem; font-weight: 600;
+        }
+        .fb-tag-x {
+            border: 0; background: transparent; cursor: pointer; font-size: 1rem; line-height: 1; color: #92400e;
+        }
+        .fb-tag-input {
+            flex: 1 1 8rem; min-width: 8rem; border: 0; outline: none; font: inherit; padding: .35rem .25rem;
+        }
+        .fb-rich .fi-sc-field-label,
+        .fb-rich .fi-fo-field-wrp-label,
+        .fb-rich .fi-sc-field-error-message,
+        .fb-rich .fi-fo-field-wrp-error-message { display: none; }
+        .fb-acc-h { margin: 0 0 .5rem; font-size: 1rem; }
+        .fb-acc-btn {
+            width: 100%; display: flex; justify-content: space-between; align-items: center; gap: .75rem;
+            border: 1px solid var(--fb-border); background: #fff; border-radius: 10px;
+            padding: .7rem .9rem; font: inherit; font-weight: 600; cursor: pointer; text-align: left;
+        }
+        .fb-acc-btn[aria-expanded="true"] { border-color: var(--fb-primary); background: #fffbeb; }
+        .fb-acc-icon { opacity: .55; }
         .fb-input, .fb-select, .fb-textarea, .fb-file {
             width: 100%;
             border: 1px solid var(--fb-border);
@@ -92,6 +143,21 @@
     <main class="fb-wrap">
         {{ $slot }}
     </main>
-    @livewireScripts
+    @filamentScripts(withCore: true)
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.on('fb-focus-field', (event) => {
+                const id = event.id ?? event[0]?.id;
+                requestAnimationFrame(() => {
+                    const el = document.getElementById(id);
+                    if (! el) return;
+                    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (typeof el.focus === 'function') {
+                        el.focus({ preventScroll: true });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

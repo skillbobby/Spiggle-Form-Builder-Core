@@ -24,6 +24,7 @@ class FeatureCatalog
         'wizard',
         'tabs',
         'pages',
+        'accordion',
     ];
 
     /**

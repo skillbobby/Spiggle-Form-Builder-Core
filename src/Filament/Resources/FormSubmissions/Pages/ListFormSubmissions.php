@@ -57,7 +57,7 @@ class ListFormSubmissions extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make('Table'),
+            'all' => Tab::make('All'),
             'new' => Tab::make('New')->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'new')),
             'reviewed' => Tab::make('Reviewed')->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'reviewed')),
             'archived' => Tab::make('Archived')->modifyQueryUsing(fn (Builder $query) => $query->where('status', 'archived')),

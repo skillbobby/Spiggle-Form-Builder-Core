@@ -2,12 +2,19 @@
 
 namespace Spiggle\FormBuilder\Livewire;
 
+use Filament\Actions\Concerns\InteractsWithActions;
+use Filament\Actions\Contracts\HasActions;
+use Filament\Schemas\Concerns\InteractsWithSchemas;
+use Filament\Schemas\Contracts\HasSchemas;
+use Filament\Schemas\Schema;
+use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Contracts\View\View;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Livewire\WithFileUploads;
 use Spiggle\FormBuilder\Models\Form;
+use Spiggle\FormBuilder\Services\FormRenderer;
 use Spiggle\FormBuilder\Services\SubmissionManager;
 use Spiggle\FormBuilder\Services\ValidationBuilder;
 use Spiggle\FormBuilder\Support\ContainerTypes;
@@ -15,9 +22,10 @@ use Spiggle\FormBuilder\Support\FeatureCatalog;
 use Spiggle\FormBuilder\Support\FieldCatalog;
 use Spiggle\FormBuilder\Support\PathResolver;
 
-class PublicForm extends Component
+class PublicForm extends Component implements HasActions, HasSchemas
 {
-    use WithFileUploads;
+    use InteractsWithActions;
+    use InteractsWithSchemas;
 
     #[Locked]
     public int $formId;
@@ -25,6 +33,12 @@ class PublicForm extends Component
     public array $data = [];
 
     public int $step = 0;
+
+    /** @var list<int> */
+    public array $openSections = [0];
+
+    /** @var array<string, string> */
+    public array $tagDraft = [];
 
     public bool $submitted = false;
 
@@ -44,6 +58,41 @@ class PublicForm extends Component
 
         $this->formId = $form->id;
         $this->hydrateDraft($form);
+        $this->editors->fill($this->data);
+    }
+
+    public function editors(Schema $schema): Schema
+    {
+        $renderer = app(FormRenderer::class);
+        $components = [];
+
+        foreach ($this->form()->fields() as $field) {
+            if (($field['type'] ?? '') !== 'textarea' || empty($field['meta']['use_editor'])) {
+                continue;
+            }
+
+            $name = (string) $field['name'];
+            $components[] = $renderer->makeRichEditor(
+                $field,
+                $name,
+                hideLabel: true,
+            );
+        }
+
+        return $schema
+            ->components($components)
+            ->statePath('data');
+    }
+
+    public function editorField(string $name): ?Htmlable
+    {
+        $component = $this->getSchema('editors')?->getComponentByStatePath(
+            'data.'.$name,
+            withHidden: true,
+            withAbsoluteStatePath: true,
+        );
+
+        return $component instanceof Htmlable ? $component : null;
     }
 
     public function form(): Form
@@ -56,26 +105,48 @@ class PublicForm extends Component
         return ContainerTypes::resolve($this->form()->container_type ?: 'single');
     }
 
+    public function updated(string $property): void
+    {
+        if (! str_starts_with($property, 'data.')) {
+            return;
+        }
+
+        $name = substr($property, 5);
+        if ($name === '' || str_ends_with($name, '_raw')) {
+            return;
+        }
+
+        $this->normalizeIncoming();
+        $rules = app(ValidationBuilder::class)->rules($this->form());
+        if (! isset($rules[$property])) {
+            return;
+        }
+
+        $this->validateOnly(
+            $property,
+            $rules,
+            [],
+            app(ValidationBuilder::class)->attributes($this->form())
+        );
+    }
+
     public function nextStep(): void
     {
         $form = $this->form();
-        if (! ContainerTypes::isStepped($this->resolvedLayout())) {
+        if (! ContainerTypes::usesStepNav($this->resolvedLayout())) {
             return;
         }
-        $this->normalizeIncoming();
-        $this->validate(
-            app(ValidationBuilder::class)->rules($form, $this->step),
-            [],
-            app(ValidationBuilder::class)->attributes($form, $this->step)
-        );
+        $this->validateCurrentSection();
         $this->saveDraft($form);
         $max = max(0, count($form->schema ?? []) - 1);
         $this->step = min($this->step + 1, $max);
+        $this->ensureSectionOpen($this->step);
     }
 
     public function previousStep(): void
     {
         $this->step = max(0, $this->step - 1);
+        $this->ensureSectionOpen($this->step);
         $this->saveDraft($this->form());
     }
 
@@ -84,17 +155,58 @@ class PublicForm extends Component
         $form = $this->form();
         $max = max(0, count($form->schema ?? []) - 1);
         $this->step = max(0, min($step, $max));
+        $this->ensureSectionOpen($this->step);
+    }
+
+    public function toggleSection(int $index): void
+    {
+        if (in_array($index, $this->openSections, true)) {
+            $this->openSections = array_values(array_filter(
+                $this->openSections,
+                fn (int $open): bool => $open !== $index
+            ));
+        } else {
+            $this->openSections[] = $index;
+        }
+        $this->step = $index;
+    }
+
+    public function commitTag(string $name): void
+    {
+        $chunk = trim((string) ($this->tagDraft[$name] ?? ''));
+        $this->tagDraft[$name] = '';
+        if ($chunk === '') {
+            return;
+        }
+
+        $current = array_values(array_filter(
+            is_array($this->data[$name] ?? null) ? $this->data[$name] : [],
+            fn ($item): bool => is_string($item) && $item !== ''
+        ));
+
+        foreach (preg_split('/\s*,\s*/', $chunk) ?: [] as $tag) {
+            $tag = trim((string) $tag);
+            if ($tag === '' || in_array($tag, $current, true)) {
+                continue;
+            }
+            $current[] = $tag;
+        }
+
+        $this->data[$name] = $current;
+        $this->updated('data.'.$name);
+    }
+
+    public function removeTag(string $name, int $index): void
+    {
+        $current = is_array($this->data[$name] ?? null) ? $this->data[$name] : [];
+        unset($current[$index]);
+        $this->data[$name] = array_values($current);
     }
 
     public function submit(): void
     {
         $form = $this->form();
-        $this->normalizeIncoming();
-        $this->validate(
-            app(ValidationBuilder::class)->rules($form),
-            [],
-            app(ValidationBuilder::class)->attributes($form)
-        );
+        $this->validateForm();
 
         app(SubmissionManager::class)->capture($form, $this->data, request(), [
             'source' => 'public',
@@ -118,6 +230,86 @@ class PublicForm extends Component
         ])->layout('form-builder::layouts.public', [
             'title' => $form->name,
         ]);
+    }
+
+    protected function validateCurrentSection(): void
+    {
+        $this->validateForm($this->step);
+    }
+
+    protected function validateForm(?int $containerIndex = null): void
+    {
+        $form = $this->form();
+        $this->normalizeIncoming();
+
+        try {
+            if ($containerIndex === null) {
+                $this->syncEditors();
+            }
+
+            $this->validate(
+                app(ValidationBuilder::class)->rules($form, $containerIndex),
+                [],
+                app(ValidationBuilder::class)->attributes($form, $containerIndex)
+            );
+        } catch (ValidationException $e) {
+            $this->revealFirstError($e);
+            throw $e;
+        }
+    }
+
+    protected function revealFirstError(ValidationException $e): void
+    {
+        $key = array_key_first($e->errors());
+        if (! is_string($key) || ! str_starts_with($key, 'data.')) {
+            return;
+        }
+
+        $name = substr($key, 5);
+        $index = $this->containerIndexForField($name);
+        if ($index !== null) {
+            $this->step = $index;
+            $this->ensureSectionOpen($index);
+        }
+
+        $this->dispatch('fb-focus-field', id: 'fb-'.$this->formId.'-'.$name);
+    }
+
+    protected function containerIndexForField(string $name): ?int
+    {
+        foreach ($this->form()->schema ?? [] as $index => $container) {
+            foreach ($container['fields'] ?? [] as $field) {
+                if (($field['name'] ?? null) === $name) {
+                    return (int) $index;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected function ensureSectionOpen(int $index): void
+    {
+        if (! in_array($index, $this->openSections, true)) {
+            $this->openSections[] = $index;
+        }
+    }
+
+    protected function syncEditors(): void
+    {
+        $schema = $this->getSchema('editors');
+        if (! $schema || $schema->getComponents() === []) {
+            return;
+        }
+
+        $state = $schema->getState();
+        if (! is_array($state)) {
+            return;
+        }
+
+        foreach ($state as $key => $value) {
+            $this->data[$key] = $value;
+        }
     }
 
     protected function normalizeIncoming(): void

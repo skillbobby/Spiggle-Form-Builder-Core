@@ -9,6 +9,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Support\HtmlString;
 use Spiggle\FormBuilder\Filament\Resources\FormSubmissions\Pages\ListFormSubmissions;
 use Spiggle\FormBuilder\Filament\Resources\FormSubmissions\Pages\ViewFormSubmission;
 use Spiggle\FormBuilder\Filament\Resources\FormSubmissions\Tables\FormSubmissionsTable;
@@ -69,18 +70,7 @@ class FormSubmissionResource extends Resource
                 ->schema([
                     TextEntry::make('answers')
                         ->hiddenLabel()
-                        ->html()
-                        ->state(function (FormSubmission $record): string {
-                            $html = '<dl class="space-y-2">';
-                            foreach ($record->displayData() as $label => $value) {
-                                $display = is_array($value)
-                                    ? e(json_encode($value, JSON_UNESCAPED_SLASHES))
-                                    : e((string) ($value ?? '—'));
-                                $html .= '<div><dt class="font-medium">'.e((string) $label).'</dt><dd>'.$display.'</dd></div>';
-                            }
-
-                            return $html.'</dl>';
-                        }),
+                        ->state(fn (FormSubmission $record): HtmlString => new HtmlString($record->answersHtml())),
                 ]),
         ]);
     }

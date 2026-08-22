@@ -153,7 +153,7 @@ class SampleFormsSeeder extends Seeder
                                 ['label' => 'Livewire', 'value' => 'livewire'],
                                 ['label' => 'Filament', 'value' => 'filament'],
                             ]],
-                            ['name' => 'summary', 'type' => 'textarea', 'label' => 'Summary', 'required' => true, 'column_span' => 12],
+                            ['name' => 'summary', 'type' => 'textarea', 'label' => 'Summary', 'required' => true, 'column_span' => 12, 'meta' => ['use_editor' => true]],
                         ],
                     ],
                     [
@@ -199,6 +199,44 @@ class SampleFormsSeeder extends Seeder
                 'submissions' => [
                     ['nps' => '9', 'product' => 'form-builder', 'what_worked' => 'The collapsed repeater labels finally make the builder usable.', 'what_to_improve' => 'A palette of prebuilt field groups would help.'],
                     ['nps' => '7', 'product' => 'dynamic-fields', 'what_worked' => 'File fields on User just work.', 'what_to_improve' => 'More examples for conditional visibility.'],
+                ],
+            ],
+            [
+                'name' => 'Volunteer Signup',
+                'slug' => 'volunteer-signup',
+                'base_path' => 'volunteer-signup',
+                'description' => 'Accordion sections stay listed so you can scan topics and open only what you need.',
+                'container_type' => 'accordion',
+                'is_published' => true,
+                'is_active' => true,
+                'success_message' => 'Thanks — we will email shift details.',
+                'schema' => SchemaNormalizer::normalize([
+                    [
+                        'label' => 'About you',
+                        'fields' => [
+                            ['name' => 'volunteer_name', 'type' => 'text', 'label' => 'Name', 'required' => true, 'column_span' => 6],
+                            ['name' => 'volunteer_email', 'type' => 'email', 'label' => 'Email', 'required' => true, 'column_span' => 6],
+                        ],
+                    ],
+                    [
+                        'label' => 'Availability',
+                        'fields' => [
+                            ['name' => 'days', 'type' => 'multi_select', 'label' => 'Days you can help', 'required' => true, 'column_span' => 12, 'options' => [
+                                ['label' => 'Saturday', 'value' => 'sat'],
+                                ['label' => 'Sunday', 'value' => 'sun'],
+                                ['label' => 'Weeknights', 'value' => 'weeknight'],
+                            ]],
+                        ],
+                    ],
+                    [
+                        'label' => 'Skills',
+                        'fields' => [
+                            ['name' => 'volunteer_skills', 'type' => 'tags', 'label' => 'Skills', 'column_span' => 12],
+                        ],
+                    ],
+                ]),
+                'submissions' => [
+                    ['volunteer_name' => 'Alex Kim', 'volunteer_email' => 'alex@example.com', 'days' => ['sat', 'sun'], 'volunteer_skills' => ['First aid', 'Setup']],
                 ],
             ],
         ];

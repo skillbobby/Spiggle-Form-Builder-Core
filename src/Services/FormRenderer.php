@@ -55,6 +55,16 @@ class FormRenderer
             ];
         }
 
+        if ($type === 'accordion') {
+            return collect($containers)->map(function (array $container, int $index) use ($stateKey) {
+                return Section::make($container['label'] ?? 'Section '.($index + 1))
+                    ->description($container['description'] ?? null)
+                    ->collapsible()
+                    ->collapsed($index !== 0)
+                    ->schema($this->containerFields($container, $stateKey));
+            })->all() ?: [Grid::make(12)->schema([])];
+        }
+
         $sections = collect($containers)->map(function (array $container, int $index) use ($stateKey) {
             return Section::make($container['label'] ?? 'Section '.($index + 1))
                 ->description($container['description'] ?? null)
@@ -96,7 +106,7 @@ class FormRenderer
 
         $component = match ($type) {
             'textarea' => ! empty($field['meta']['use_editor'])
-                ? RichEditor::make($name)
+                ? $this->makeRichEditor($field, $name)
                 : Textarea::make($name)->rows((int) data_get($field, 'meta.rows', 4)),
             'select' => Select::make($name)->options($options)->native(false),
             'multi_select' => Select::make($name)->options($options)->multiple()->native(false)->searchable(),
@@ -144,49 +154,152 @@ class FormRenderer
     }
 
     /**
+     * Filament RichEditor used by the admin mapper and the public Livewire form.
+     *
+     * @param  array<string, mixed>  $field
+     */
+    public function makeRichEditor(array $field, string $name, bool $hideLabel = false, ?string $htmlId = null): RichEditor
+    {
+        $editor = RichEditor::make($name)
+            ->fileAttachments(false)
+            ->toolbarButtons([
+                ['bold', 'italic', 'underline', 'link'],
+                ['bulletList', 'orderedList'],
+                ['undo', 'redo'],
+            ]);
+
+        if ($hideLabel) {
+            $editor->hiddenLabel();
+        }
+
+        if ($htmlId) {
+            $editor->extraAttributes(['id' => $htmlId]);
+        }
+
+        if (! empty($field['placeholder'])) {
+            $editor->placeholder((string) $field['placeholder']);
+        }
+
+        return $editor;
+    }
+
+    /**
      * HTML schematic used in the builder live preview.
+     *
+     * Inline styles only: Filament v5 does not ship Tailwind utilities, and
+     * TextEntry::html() sanitizes layout tags down to plain text.
      *
      * @param  array<string, mixed>  $state
      */
     public function schematicHtml(array $state): string
     {
         $name = e((string) ($state['name'] ?? 'Untitled form'));
-        $type = e((string) ($state['container_type'] ?? 'single'));
+        $type = (string) ($state['container_type'] ?? 'single');
         $schema = is_array($state['schema'] ?? null) ? $state['schema'] : [];
 
-        $html = '<div class="space-y-3 text-sm">';
-        $html .= '<p class="font-medium">'.$name.' <span class="opacity-70">('.$type.')</span></p>';
+        $shell = 'border:1px solid color-mix(in srgb, currentColor 18%, transparent);border-radius:12px;padding:16px;background:color-mix(in srgb, currentColor 4%, transparent);font-size:14px;line-height:1.4';
 
         if ($schema === []) {
-            $html .= '<p class="opacity-70">Add a section and fields to see a live layout preview.</p></div>';
-
-            return $html;
+            return '<div data-layout-preview="empty" style="'.$shell.';opacity:.7">Add a section and fields to see a live layout preview.</div>';
         }
 
-        foreach ($schema as $container) {
-            $label = e((string) ($container['label'] ?? 'Section'));
-            $html .= '<div class="rounded-lg border border-gray-200 dark:border-gray-700 p-3 space-y-2">';
-            $html .= '<div class="font-medium">'.$label.'</div>';
-            $html .= '<div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:.5rem;">';
+        $html = '<div data-layout-preview="'.e($type).'" style="'.$shell.'">';
+        $html .= '<p style="margin:0 0 14px;font-weight:600">'.$name.'</p>';
+        $html .= $this->schematicChromeHtml($type, $schema);
 
-            foreach ($container['fields'] ?? [] as $field) {
-                if (! is_array($field)) {
-                    continue;
-                }
-                $span = max(1, min(12, (int) ($field['column_span'] ?? 12)));
-                $fieldLabel = e((string) ($field['label'] ?? $field['name'] ?? 'Field'));
-                $fieldType = e((string) ($field['type'] ?? 'text'));
-                $req = ! empty($field['required']) ? ' *' : '';
-                $html .= '<div style="grid-column:span '.$span.' / span '.$span.';" class="rounded border border-dashed border-gray-300 dark:border-gray-600 px-2 py-1">';
-                $html .= '<span>'.$fieldLabel.$req.'</span> <span class="opacity-60">'.$fieldType.'</span>';
-                $html .= '</div>';
+        foreach ($schema as $index => $container) {
+            if (! is_array($container)) {
+                continue;
             }
-
-            $html .= '</div></div>';
+            $label = e((string) ($container['label'] ?? 'Section'));
+            $html .= '<div data-preview-section="'.$index.'" style="margin-top:'.($index === 0 ? '0' : '16px').'">';
+            if ($type !== 'single' || count($schema) > 1) {
+                $html .= '<div style="font-size:12px;opacity:.65;margin-bottom:8px">'.$label.'</div>';
+            }
+            $html .= $this->schematicFieldsHtml($container);
+            $html .= '</div>';
         }
 
         $html .= '</div>';
 
         return $html;
+    }
+
+    /**
+     * @param  array<int, mixed>  $schema
+     */
+    protected function schematicChromeHtml(string $type, array $schema): string
+    {
+        if ($type === 'tabs') {
+            $html = '<div data-preview-tabs style="display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid color-mix(in srgb, currentColor 18%, transparent);margin-bottom:14px">';
+            foreach ($schema as $index => $container) {
+                if (! is_array($container)) {
+                    continue;
+                }
+                $label = e((string) ($container['label'] ?? 'Tab '.($index + 1)));
+                $active = $index === 0
+                    ? 'font-weight:600;border-bottom:2px solid #f59e0b;opacity:1'
+                    : 'opacity:.55;border-bottom:2px solid transparent';
+                $html .= '<div style="padding:8px 14px;'.$active.'">'.$label.'</div>';
+            }
+
+            return $html.'</div>';
+        }
+
+        if ($type === 'wizard' || $type === 'pages') {
+            $html = '<div data-preview-steps style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
+            foreach ($schema as $index => $container) {
+                if (! is_array($container)) {
+                    continue;
+                }
+                $label = e((string) ($container['label'] ?? 'Step '.($index + 1)));
+                $html .= '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb, currentColor 18%, transparent);font-size:13px">';
+                $html .= '<span style="width:22px;height:22px;border-radius:999px;background:#f59e0b;color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">'.($index + 1).'</span>';
+                $html .= $label.'</div>';
+            }
+
+            return $html.'</div>';
+        }
+
+        if ($type === 'accordion') {
+            $html = '<div data-preview-accordion style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">';
+            foreach ($schema as $index => $container) {
+                if (! is_array($container)) {
+                    continue;
+                }
+                $label = e((string) ($container['label'] ?? 'Section '.($index + 1)));
+                $html .= '<div style="border:1px solid color-mix(in srgb, currentColor 18%, transparent);border-radius:8px;padding:8px 12px;font-weight:600;display:flex;justify-content:space-between;gap:8px">';
+                $html .= '<span>'.$label.'</span><span style="opacity:.5">'.($index === 0 ? '▾' : '▸').'</span></div>';
+            }
+
+            return $html.'</div>';
+        }
+
+        return '';
+    }
+
+    /**
+     * @param  array<string, mixed>  $container
+     */
+    protected function schematicFieldsHtml(array $container): string
+    {
+        $html = '<div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:8px">';
+
+        foreach ($container['fields'] ?? [] as $field) {
+            if (! is_array($field)) {
+                continue;
+            }
+            $span = max(1, min(12, (int) ($field['column_span'] ?? 12)));
+            $fieldLabel = e((string) ($field['label'] ?? $field['name'] ?? 'Field'));
+            $fieldType = e((string) ($field['type'] ?? 'text'));
+            $req = ! empty($field['required']) ? ' *' : '';
+            $html .= '<div style="grid-column:span '.$span.' / span '.$span.';min-height:56px;border:1px solid color-mix(in srgb, currentColor 22%, transparent);border-radius:8px;padding:8px 10px;background:color-mix(in srgb, currentColor 3%, transparent)">';
+            $html .= '<div style="font-size:12px;font-weight:600">'.$fieldLabel.$req.'</div>';
+            $html .= '<div style="margin-top:8px;height:8px;border-radius:4px;background:color-mix(in srgb, currentColor 12%, transparent)"></div>';
+            $html .= '<div style="margin-top:6px;font-size:11px;opacity:.55">'.$fieldType.'</div>';
+            $html .= '</div>';
+        }
+
+        return $html.'</div>';
     }
 }
