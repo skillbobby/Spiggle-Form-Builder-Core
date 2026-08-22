@@ -361,6 +361,11 @@ tr:hover td { background: #fbf8f2; }
   text-align: center;
   padding-top: 8px;
 }
+.footer-update {
+  margin-left: 6px;
+  font-size: 11px;
+  opacity: 0.75;
+}
 .pager {
   display: flex;
   justify-content: space-between;

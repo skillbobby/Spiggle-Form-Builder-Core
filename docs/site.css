@@ -709,6 +709,13 @@ section { padding: 72px 0; }
 }
 .footer-links a { color: var(--muted); font-weight: 500; }
 .footer-links a:hover { color: var(--ink); }
+.footer-update {
+  margin-left: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  opacity: 0.7;
+}
 
 @media (max-width: 900px) {
   .pricing-grid,
