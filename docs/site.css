@@ -688,6 +688,35 @@ section { padding: 72px 0; }
 .plugin-card h3 { margin: 0 0 8px; font-size: 1.15rem; }
 .plugin-card p { margin: 0 0 16px; color: var(--muted); font-size: 0.95rem; }
 
+/* Custom work CTA */
+.custom-cta-wrap { padding-top: 8px; }
+.custom-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 36px 40px;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(80% 120% at 0% 0%, rgba(245, 158, 11, 0.18), transparent 55%),
+    var(--dark);
+  color: #fff;
+  box-shadow: var(--shadow);
+}
+.custom-cta-copy { max-width: 640px; }
+.custom-cta h2 {
+  margin: 0 0 8px;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+.custom-cta p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.98rem;
+}
+.custom-cta-btn { flex-shrink: 0; white-space: nowrap; }
+
 /* Footer */
 .site-footer {
   border-top: 1px solid var(--line);
@@ -721,6 +750,11 @@ section { padding: 72px 0; }
   .pricing-grid,
   .plugins,
   .split { grid-template-columns: 1fr; }
+  .custom-cta {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 28px 24px;
+  }
   .demo-panel {
     grid-template-columns: 1fr;
   }
