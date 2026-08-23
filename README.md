@@ -151,6 +151,10 @@ php artisan form-builder:seed
 
 ---
 
+## Security
+
+Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do not open a public issue for security problems.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Community Edition is free and open source. Pro is a separate commercial add-on.
