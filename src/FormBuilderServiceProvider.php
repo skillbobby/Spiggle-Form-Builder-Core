@@ -21,6 +21,7 @@ use Spiggle\FormBuilder\Services\AuditLogger;
 use Spiggle\FormBuilder\Services\ExportService;
 use Spiggle\FormBuilder\Services\FormRenderer;
 use Spiggle\FormBuilder\Services\SubmissionManager;
+use Spiggle\FormBuilder\Licensing\RegistersAddonLicense;
 use Spiggle\FormBuilder\Services\ValidationBuilder;
 
 class FormBuilderServiceProvider extends ServiceProvider
@@ -75,5 +76,7 @@ class FormBuilderServiceProvider extends ServiceProvider
                 ImportFormsCommand::class,
             ]);
         }
+
+        RegistersAddonLicense::boot();
     }
 }
