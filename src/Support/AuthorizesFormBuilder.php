@@ -2,14 +2,48 @@
 
 namespace Spiggle\FormBuilder\Support;
 
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
 
 class AuthorizesFormBuilder
 {
     public static function check(string $permissionKey): bool
     {
-        $user = Auth::user();
+        return static::userCan(Auth::user(), $permissionKey);
+    }
 
+    public static function userCanManageForms(?Authenticatable $user = null): bool
+    {
+        return static::userCan($user ?? Auth::user(), 'manage_forms');
+    }
+
+    public static function userCanViewSubmissions(?Authenticatable $user = null): bool
+    {
+        $user ??= Auth::user();
+
+        return static::userCan($user, 'view_submissions')
+            || static::userCan($user, 'manage_submissions')
+            || static::userCanManageForms($user);
+    }
+
+    public static function userCanManageSubmissions(?Authenticatable $user = null): bool
+    {
+        $user ??= Auth::user();
+
+        return static::userCan($user, 'manage_submissions')
+            || static::userCanManageForms($user);
+    }
+
+    public static function userCanExportSubmissions(?Authenticatable $user = null): bool
+    {
+        $user ??= Auth::user();
+
+        return static::userCan($user, 'export_submissions')
+            || static::userCanManageSubmissions($user);
+    }
+
+    public static function userCan(?Authenticatable $user, string $permissionKey): bool
+    {
         if (! $user) {
             return false;
         }

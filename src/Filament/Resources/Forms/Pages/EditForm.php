@@ -18,7 +18,9 @@ class EditForm extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            ViewAction::make(),
+            ViewAction::make()
+                ->modal(false)
+                ->url(fn (): string => static::getResource()::getUrl('view', ['record' => $this->getRecord()])),
             Action::make('openPublic')
                 ->label('Open public form')
                 ->icon('heroicon-o-arrow-top-right-on-square')

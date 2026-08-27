@@ -80,6 +80,36 @@ class FormResource extends Resource
 
     public static function canAccess(): bool
     {
-        return AuthorizesFormBuilder::check('manage_forms');
+        return static::userCanManageForms();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return static::userCanManageForms();
+    }
+
+    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::userCanManageForms();
+    }
+
+    public static function canCreate(): bool
+    {
+        return static::userCanManageForms();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::userCanManageForms();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::userCanManageForms();
+    }
+
+    protected static function userCanManageForms(): bool
+    {
+        return AuthorizesFormBuilder::userCanManageForms();
     }
 }

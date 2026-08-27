@@ -13,7 +13,9 @@ class ListForms extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            CreateAction::make()
+                ->modal(false)
+                ->url(fn (): string => static::getResource()::getUrl('create')),
         ];
     }
 }
