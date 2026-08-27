@@ -13,6 +13,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Spiggle\FormBuilder\Filament\Resources\Forms\FormResource;
 use Spiggle\FormBuilder\Filament\Support\ProUpsell;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Support\ContainerTypes;
@@ -56,7 +57,9 @@ class FormsTable
                 TernaryFilter::make('is_published')->label('Published'),
             ])
             ->recordActions([
-                EditAction::make(),
+                EditAction::make()
+                    ->modal(false)
+                    ->url(fn (Form $record): string => FormResource::getUrl('edit', ['record' => $record])),
                 Action::make('open')
                     ->label('Open')
                     ->icon('heroicon-o-arrow-top-right-on-square')

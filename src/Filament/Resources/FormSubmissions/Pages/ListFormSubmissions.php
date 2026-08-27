@@ -26,7 +26,7 @@ class ListFormSubmissions extends ListRecords
             Action::make('exportAll')
                 ->label('Export')
                 ->icon('heroicon-o-arrow-down-tray')
-                ->visible(fn (): bool => AuthorizesFormBuilder::check('export_submissions'))
+                ->visible(fn (): bool => AuthorizesFormBuilder::userCanExportSubmissions())
                 ->schema([
                     Select::make('format')
                         ->options(FeatureCatalog::exportFormatLabels())

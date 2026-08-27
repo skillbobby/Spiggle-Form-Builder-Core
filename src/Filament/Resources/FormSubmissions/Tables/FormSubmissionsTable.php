@@ -17,6 +17,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Spiggle\FormBuilder\Filament\Resources\FormSubmissions\FormSubmissionResource;
 use Spiggle\FormBuilder\Filament\Support\ProUpsell;
 use Spiggle\FormBuilder\Jobs\ExportSubmissionsJob;
 use Spiggle\FormBuilder\Models\Form;
@@ -107,7 +108,9 @@ class FormSubmissionsTable
                     }),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->modal(false)
+                    ->url(fn (FormSubmission $record): string => FormSubmissionResource::getUrl('view', ['record' => $record])),
                 Action::make('markReviewed')
                     ->label('Reviewed')
                     ->icon('heroicon-o-check')
@@ -141,7 +144,7 @@ class FormSubmissionsTable
                     BulkAction::make('exportSelected')
                         ->label('Export selected')
                         ->icon('heroicon-o-arrow-down-tray')
-                        ->visible(fn (): bool => AuthorizesFormBuilder::check('export_submissions'))
+                        ->visible(fn (): bool => AuthorizesFormBuilder::userCanExportSubmissions())
                         ->schema([
                             Select::make('format')
                                 ->options(FeatureCatalog::exportFormatLabels())

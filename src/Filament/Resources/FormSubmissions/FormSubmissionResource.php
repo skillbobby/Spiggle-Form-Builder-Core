@@ -85,7 +85,36 @@ class FormSubmissionResource extends Resource
 
     public static function canAccess(): bool
     {
-        return AuthorizesFormBuilder::check('view_submissions')
-            || AuthorizesFormBuilder::check('manage_forms');
+        return static::userCanViewSubmissions();
+    }
+
+    public static function canViewAny(): bool
+    {
+        return static::userCanViewSubmissions();
+    }
+
+    public static function canView(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return static::userCanViewSubmissions();
+    }
+
+    public static function canCreate(): bool
+    {
+        return AuthorizesFormBuilder::userCanManageSubmissions();
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return AuthorizesFormBuilder::userCanManageSubmissions();
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        return AuthorizesFormBuilder::userCanManageSubmissions();
+    }
+
+    protected static function userCanViewSubmissions(): bool
+    {
+        return AuthorizesFormBuilder::userCanViewSubmissions();
     }
 }

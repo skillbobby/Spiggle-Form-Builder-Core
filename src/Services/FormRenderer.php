@@ -33,6 +33,13 @@ class FormRenderer
         $containers = $form->schema ?? [];
         $type = ContainerTypes::resolve($form->container_type ?: 'single');
 
+        // Schema keys may be UUIDs / strings from the builder — reindex before
+        // using $index in arithmetic or int-typed map callbacks.
+        $containers = array_values(array_filter(
+            is_array($containers) ? $containers : [],
+            fn ($container): bool => is_array($container)
+        ));
+
         if ($type === 'wizard' || $type === 'pages') {
             return [
                 Wizard::make(
@@ -230,12 +237,11 @@ class FormRenderer
      */
     protected function schematicChromeHtml(string $type, array $schema): string
     {
+        $schema = array_values(array_filter($schema, fn ($container): bool => is_array($container)));
+
         if ($type === 'tabs') {
             $html = '<div data-preview-tabs style="display:flex;flex-wrap:wrap;gap:0;border-bottom:1px solid color-mix(in srgb, currentColor 18%, transparent);margin-bottom:14px">';
             foreach ($schema as $index => $container) {
-                if (! is_array($container)) {
-                    continue;
-                }
                 $label = e((string) ($container['label'] ?? 'Tab '.($index + 1)));
                 $active = $index === 0
                     ? 'font-weight:600;border-bottom:2px solid #f59e0b;opacity:1'
@@ -249,9 +255,6 @@ class FormRenderer
         if ($type === 'wizard' || $type === 'pages') {
             $html = '<div data-preview-steps style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px">';
             foreach ($schema as $index => $container) {
-                if (! is_array($container)) {
-                    continue;
-                }
                 $label = e((string) ($container['label'] ?? 'Step '.($index + 1)));
                 $html .= '<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;border:1px solid color-mix(in srgb, currentColor 18%, transparent);font-size:13px">';
                 $html .= '<span style="width:22px;height:22px;border-radius:999px;background:#f59e0b;color:#111;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">'.($index + 1).'</span>';
@@ -264,9 +267,6 @@ class FormRenderer
         if ($type === 'accordion') {
             $html = '<div data-preview-accordion style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">';
             foreach ($schema as $index => $container) {
-                if (! is_array($container)) {
-                    continue;
-                }
                 $label = e((string) ($container['label'] ?? 'Section '.($index + 1)));
                 $html .= '<div style="border:1px solid color-mix(in srgb, currentColor 18%, transparent);border-radius:8px;padding:8px 12px;font-weight:600;display:flex;justify-content:space-between;gap:8px">';
                 $html .= '<span>'.$label.'</span><span style="opacity:.5">'.($index === 0 ? '▾' : '▸').'</span></div>';

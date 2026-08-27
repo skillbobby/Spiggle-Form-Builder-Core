@@ -22,7 +22,9 @@ class ViewForm extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            EditAction::make(),
+            EditAction::make()
+                ->modal(false)
+                ->url(fn (): string => static::getResource()::getUrl('edit', ['record' => $this->getRecord()])),
             Action::make('openPublic')
                 ->label('Open public form')
                 ->icon('heroicon-o-arrow-top-right-on-square')

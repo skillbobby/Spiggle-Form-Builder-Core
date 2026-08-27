@@ -2,6 +2,7 @@
 
 namespace Spiggle\FormBuilder;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -11,6 +12,10 @@ use Spiggle\FormBuilder\Console\SeedSampleFormsCommand;
 use Spiggle\FormBuilder\Console\VerifyFormBuilderCommand;
 use Spiggle\FormBuilder\Http\Middleware\ResolveFormPath;
 use Spiggle\FormBuilder\Livewire\PublicForm;
+use Spiggle\FormBuilder\Models\Form;
+use Spiggle\FormBuilder\Models\FormSubmission;
+use Spiggle\FormBuilder\Policies\FormPolicy;
+use Spiggle\FormBuilder\Policies\FormSubmissionPolicy;
 use Spiggle\FormBuilder\Services\AnalyticsService;
 use Spiggle\FormBuilder\Services\AuditLogger;
 use Spiggle\FormBuilder\Services\ExportService;
@@ -34,6 +39,9 @@ class FormBuilderServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Gate::policy(Form::class, FormPolicy::class);
+        Gate::policy(FormSubmission::class, FormSubmissionPolicy::class);
+
         $this->publishes([
             __DIR__.'/../config/form-builder.php' => config_path('form-builder.php'),
         ], 'form-builder-config');
