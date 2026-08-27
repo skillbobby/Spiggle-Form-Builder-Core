@@ -2,7 +2,7 @@
     "name": "spiggle/form-builder-core",
     "description": "Filament Dynamic Form Builder for Laravel — Community Edition with single-page forms, public renderer, and CSV export.",
     "type": "library",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "license": "MIT",
     "homepage": "https://github.com/skillbobby/Spiggle-Form-Builder-Core",
     "support": {
