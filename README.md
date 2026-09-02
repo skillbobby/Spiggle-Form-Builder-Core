@@ -50,21 +50,26 @@ Included free in Core:
 
 ## Pro features
 
-Need multi-step flows, premium exports, or analytics? Upgrade to **Form Builder Pro** — a separate licensed add-on that installs alongside Core.
+Need multi-step flows, premium exports, masking, or analytics? Upgrade to **Form Builder Pro** — a separate licensed add-on that installs alongside Core.
+
+Community Edition includes the visual designer (Core content blocks), single-page layouts, CSV export, JSON import/export, and the submission inbox.
 
 | Pro-only | |
 |---|---|
-| **Wizard / Tabs / Pages** | Stepped validation, client tabs, session drafts |
+| **Visual form designer extras** | Template gallery with Pro layouts, 3-step create wizard (blank → template → designer) |
+| **Content blocks & page chrome** | Social links, button group, custom HTML; header/footer slots on every public page |
+| **Wizard / Tabs / Pages / Accordion** | Stepped validation, client tabs, session drafts between screens |
 | **XLSX + PDF export** | SpreadsheetML Excel + printable PDF |
-| **Analytics charts** | Submission volume and status widgets |
+| **Thank-you customization** | Review Card and Connect (campaign) layouts with social links, CTAs, and auto-redirect |
+| **Input masking** | Phone, date, time, and currency masks on text, phone, and number fields |
+| **Analytics charts** | Submission volume and status widgets on list and form view pages |
 | **Form clone** | Duplicate a form in one click |
 | **Import from Dynamic Fields** | Pull existing custom field definitions into a form |
 | **Email notify hooks** | Store notify addresses for your `FormSubmitted` listeners |
-| **License management** | Activate and manage your Pro license in Filament |
+| **Page drafts** | Session-persisted progress on wizard and pages layouts |
+| **License management** | Activate and manage your Pro license on Spiggle Licenses in Filament |
 
-**[Get Pro license](https://kodesmart.lemonsqueezy.com/checkout/buy/c23b259f-7845-41c3-aa24-61e92c29dc72?enabled=2043888)**
-
-Business / unlimited-site licensing: **[Get Business license](https://kodesmart.lemonsqueezy.com/checkout/buy/9a5c685c-afb5-4ef8-a61c-f4798cc8d1d2?enabled=2043889)**.
+**[Get Solo license](https://kodesmart.lemonsqueezy.com/checkout/buy/a913f8ae-a88b-4957-aea3-7f96440c66ec?enabled=2043887)** · **[Get Pro license](https://kodesmart.lemonsqueezy.com/checkout/buy/c23b259f-7845-41c3-aa24-61e92c29dc72?enabled=2043888)** · **[Get Business license](https://kodesmart.lemonsqueezy.com/checkout/buy/9a5c685c-afb5-4ef8-a61c-f4798cc8d1d2?enabled=2043889)**
 
 ---
 

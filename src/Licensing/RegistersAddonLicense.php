@@ -21,7 +21,7 @@ final class RegistersAddonLicense
         app(AddonLicenseRegistry::class)->register(new AddonRegistration(
             id: 'form-builder',
             name: 'Form Builder',
-            inactiveDescription: 'Community Edition is active. Install Form Builder Pro to unlock wizard/tabs/pages, XLSX/PDF export, charts, clone, and email notify hooks.',
+            inactiveDescription: 'Community Edition is active. Install Form Builder Pro to unlock wizard/tabs/pages/accordion, XLSX/PDF export, charts, clone, email notify hooks, thank-you Review Card & Connect layouts, input masking, and Pro templates.',
             purchaseLabel: 'Buy Form Builder Pro',
             licenseManagerClass: CommunityLicenseManager::class,
             permission: (string) config('form-builder.permissions.manage_forms', 'manage_forms'),

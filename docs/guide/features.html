@@ -11,7 +11,7 @@
   <header class="site-header" id="top">
     <a class="brand" href="index.html">
       <span class="brand-mark">S</span>
-      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v2.0.3</span></span>
     </a>
     <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
     <nav class="site-nav" aria-label="Documentation">
@@ -36,6 +36,8 @@
         <li><a href="#files">File uploads</a></li>
         <li><a href="#inbox">Submissions</a></li>
         <li><a href="#export">Exports</a></li>
+        <li><a href="#masking">Input masking</a></li>
+        <li><a href="#thankyou">Thank-you layouts</a></li>
         <li><a href="#import">Import custom fields</a></li>
       </ol>
     </aside>
@@ -43,19 +45,19 @@
     <main class="content" id="main">
       <p class="meta"><span class="badge navy">Features</span> <span class="badge">every control</span></p>
       <h1>User support for every feature</h1>
-      <p class="lead">Matches the Filament builder, public Livewire page, and submission inbox in v1.0.0.</p>
+      <p class="lead">Matches the Filament visual designer, public Livewire page, and submission inbox in v2.0.3. Items marked <span class="badge">PRO</span> require Form Builder Pro.</p>
 
       <h2 id="builder">Builder UI</h2>
       <ul>
-        <li>Three tabs: <strong>Settings</strong>, <strong>Builder</strong>, <strong>Preview</strong>. Active tab persists in the query string.</li>
-        <li>Nested repeaters are <strong>collapsed</strong>, <strong>collapsible</strong>, <strong>cloneable</strong>, and <strong>drag-reorderable</strong> (Filament / SortableJS).</li>
-        <li>Collapsed section rows show the section title (or “Untitled section”).</li>
-        <li>Collapsed field rows show <code>label · type</code>.</li>
-        <li>Collapsed option rows show the option label.</li>
-        <li>Settings grid is one column on mobile, two from the <code>md</code> breakpoint.</li>
-        <li>Create form redirects to the list index.</li>
-        <li>List: name + public path description, layout badge, published icon, entries count, Open / Clone / Edit / Delete. Filters: layout, published.</li>
-        <li>View form: public URL, counts, schematic preview, charts, submissions relation, Open public form.</li>
+        <li><strong>Create wizard:</strong> 3-step flow — choose blank or template, pick a gallery template (Core + Pro), land on the visual designer.</li>
+        <li><strong>Visual designer:</strong> Drag-drop 3-panel layout (pages + palette / canvas / inspector) on the edit page.</li>
+        <li><strong>Content blocks (Core):</strong> heading, paragraph, divider, spacer, banner, image, video, footer, button, section container.</li>
+        <li><strong>Content blocks (Pro):</strong> social links, button group, custom HTML.</li>
+        <li><strong>Page chrome:</strong> header and footer slots repeat on every public page (Core blocks in header/footer zones).</li>
+        <li><strong>Thank you (Core):</strong> Card layout with editable blocks.</li>
+        <li><strong>Thank you (Pro):</strong> Review Card (hero, CTA band) and Connect / campaign layout (social cards, website button, auto-redirect).</li>
+        <li>List: name + public path, layout badge, published icon, entries count, Open / Clone (Pro) / Edit / Delete.</li>
+        <li>View form: public URL, schematic preview, analytics charts (Pro), submissions relation.</li>
       </ul>
 
       <h2 id="settings">Settings fields</h2>
@@ -66,14 +68,14 @@
             <tr><td>Name</td><td>Required. Can auto-fill slug and public path.</td></tr>
             <tr><td>Slug</td><td>Internal unique identifier (alpha-dash).</td></tr>
             <tr><td>Public path</td><td>URL segment after the prefix. Unique; conflicts hashed.</td></tr>
-            <tr><td>Layout</td><td>single / wizard / tabs / pages (live — changes section add/delete rules).</td></tr>
+            <tr><td>Layout</td><td>single (Core) / wizard / tabs / pages / accordion (Pro). Live — changes section add/delete rules.</td></tr>
             <tr><td>Description</td><td>Shown on the public page under the title.</td></tr>
             <tr><td>Default label position</td><td>above, inline, below, inside (placeholder).</td></tr>
             <tr><td>Published</td><td>Off = hidden from public URL.</td></tr>
             <tr><td>Active</td><td>Off = also excluded from published scope.</td></tr>
             <tr><td>Success message</td><td>Default: “Thanks — your response has been recorded.”</td></tr>
             <tr><td>Redirect after submit</td><td>Must be a URL. Shown as a Continue link after success, not an automatic HTTP redirect.</td></tr>
-            <tr><td>Notify emails</td><td>Tags of addresses stored on the form. v1 does not send mail; listen to <code>FormSubmitted</code> in the host.</td></tr>
+            <tr><td>Notify emails</td><td>Tags of addresses stored on the form (Pro). Package does not send mail — listen to <code>FormSubmitted</code> in the host.</td></tr>
           </tbody>
         </table>
       </div>
@@ -87,6 +89,7 @@
             <tr><td>Wizard</td><td>Multi-step with a progress bar</td><td>Current step on Next; all on last Submit</td><td>Event Registration</td></tr>
             <tr><td>Tabs</td><td>Related groups without gating</td><td>All on Submit</td><td>Job Application</td></tr>
             <tr><td>Pages</td><td>Surveys that should save drafts between screens</td><td>Same gates as wizard; “Save and continue”</td><td>Customer Feedback</td></tr>
+            <tr><td>Accordion</td><td>Collapsible sections on one screen</td><td>All on Submit</td><td>Pro template gallery</td></tr>
           </tbody>
         </table>
       </div>
@@ -146,22 +149,47 @@
         <li>Exports list original file names separated by semicolons.</li>
       </ul>
 
-      <h2 id="inbox">Submissions inbox</h2>
+      <h2 id="masking">Input masking <span class="badge">PRO</span></h2>
+      <p>Per-field masks on <code>text</code>, <code>phone</code>, and <code>number</code> types (not date/datetime pickers). Set <code>meta.input_mask</code> in the inspector:</p>
       <ul>
-        <li>Preview column: first two answered fields as an excerpt.</li>
-        <li>UUID copyable, hidden by default.</li>
-        <li>Charts on the list and on the form view page.</li>
-        <li>Empty state: “Publish the form and share its public URL…”</li>
+        <li><strong>phone</strong> — formats as you type, e.g. <code>(555) 123-4567</code></li>
+        <li><strong>date</strong> — <code>MM/DD/YYYY</code></li>
+        <li><strong>time</strong> — <code>HH:MM</code></li>
+        <li><strong>currency</strong> — <code>$0.00</code></li>
       </ul>
+      <p>Public forms load a small mask script; stored values are the masked strings visitors entered.</p>
+
+      <h2 id="thankyou">Thank-you layouts</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Layout</th><th>Tier</th><th>Highlights</th></tr></thead>
+          <tbody>
+            <tr><td>Card</td><td>Core</td><td>Default success message + editable content blocks</td></tr>
+            <tr><td>Review Card</td><td>Pro</td><td>Hero icon/image, header band, review CTA button, submit-another link</td></tr>
+            <tr><td>Connect</td><td>Pro</td><td>Campaign page with social link cards, website button, optional auto-redirect</td></tr>
+          </tbody>
+        </table>
+      </div>
 
       <h2 id="export">Exports</h2>
       <ul>
+        <li><strong>CSV</strong> — Core; native <code>fputcsv</code>.</li>
+        <li><strong>XLSX</strong> — Pro; SpreadsheetML Excel.</li>
+        <li><strong>PDF</strong> — Pro; printable submission export.</li>
         <li>Headers: id, uuid, form, status, created_at, then each field name (or union of keys if exporting mixed forms).</li>
         <li>Arrays become comma-separated; file arrays become names joined with <code>; </code>.</li>
         <li>Audit log action <code>export</code> with format, filename, count.</li>
       </ul>
 
-      <h2 id="import">Import from custom fields</h2>
+      <h2 id="inbox">Submissions inbox</h2>
+      <ul>
+        <li>Preview column: first two answered fields as an excerpt.</li>
+        <li>UUID copyable, hidden by default.</li>
+        <li>Analytics charts on the list and form view page (Pro).</li>
+        <li>Empty state: “Publish the form and share its public URL…”</li>
+      </ul>
+
+      <h2 id="import">Import from custom fields <span class="badge">PRO</span></h2>
       <p>Developer API copies definitions into the form schema (see Workflows). After import, edit the form in the builder as usual — it is a one-way snapshot.</p>
 
       <div class="pager">

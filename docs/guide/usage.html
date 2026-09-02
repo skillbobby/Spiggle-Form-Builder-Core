@@ -11,7 +11,7 @@
   <header class="site-header" id="top">
     <a class="brand" href="index.html">
       <span class="brand-mark">S</span>
-      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v2.0.3</span></span>
     </a>
     <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
     <nav class="site-nav" aria-label="Documentation">
@@ -40,7 +40,7 @@
     </aside>
 
     <main class="content" id="main">
-      <p class="meta"><span class="badge navy">Usage</span> <span class="badge">v1.0.0</span></p>
+      <p class="meta"><span class="badge navy">Usage</span> <span class="badge">v2.0.3</span></p>
       <h1>Install, register, and configure</h1>
       <p class="lead">Developer setup for a Laravel + Filament host. Admin form-building steps are in <a href="workflows.html">Workflows</a>.</p>
 
@@ -55,22 +55,10 @@
         <li>Optional: Filament Shield / Spatie Permission</li>
         <li>Optional: <code>spatie/laravel-activitylog</code> (audit also writes to package tables without it)</li>
       </ul>
-      <p>Composer name: <code>spiggle/form-builder</code>. Namespace: <code>Spiggle\FormBuilder</code>. Plugin id: <code>spiggle-form-builder</code>.</p>
+      <p>Composer name: <code>spiggle/form-builder-core</code>. Namespace: <code>Spiggle\FormBuilder</code>. Plugin id: <code>spiggle-form-builder</code>.</p>
 
-      <h2 id="install">Install (path repository)</h2>
-<pre><code>{
-  "repositories": [
-    {
-      "type": "path",
-      "url": "packages/spiggle-form-builder",
-      "options": { "symlink": true }
-    }
-  ],
-  "require": {
-    "spiggle/form-builder": "*"
-  }
-}</code></pre>
-<pre><code>composer require spiggle/form-builder:@dev</code></pre>
+      <h2 id="install">Install</h2>
+<pre><code>composer require spiggle/form-builder-core</code></pre>
       <p>The service provider auto-registers. Livewire component name: <code>form-builder.public-form</code>.</p>
 
       <h2 id="publish">Publish config, migrations, views</h2>
@@ -162,7 +150,7 @@ $panel
             <tr><td><code>files.disk / directory / max_size_kb</code></td><td>public, form-submissions, 5120</td><td>Public file uploads</td></tr>
             <tr><td><code>exports.disk / directory / queue / formats</code></td><td>local, form-builder-exports, default, csv/xlsx/pdf</td><td>Export files</td></tr>
             <tr><td><code>notify.enabled / mail_from</code></td><td>true, null</td><td>Reserved for host mailers — see Features</td></tr>
-            <tr><td><code>container_types</code></td><td>single, wizard, tabs, pages</td><td>Layouts</td></tr>
+            <tr><td><code>container_types</code></td><td>single, wizard, tabs, pages, accordion</td><td>Layouts (Pro except single)</td></tr>
             <tr><td><code>label_positions</code></td><td>above, inline, below, inside</td><td>Public labels</td></tr>
             <tr><td><code>field_types</code></td><td>same list as Dynamic Fields</td><td>Used when Dynamic Fields is absent</td></tr>
             <tr><td><code>drafts.enabled / session_key</code></td><td>true, <code>form_builder_drafts</code></td><td>Wizard/pages session drafts</td></tr>

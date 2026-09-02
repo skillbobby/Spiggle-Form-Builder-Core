@@ -11,7 +11,7 @@
   <header class="site-header" id="top">
     <a class="brand" href="index.html">
       <span class="brand-mark">S</span>
-      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v2.0.3</span></span>
     </a>
     <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
     <nav class="site-nav" aria-label="Documentation">
@@ -37,9 +37,9 @@
 
     <main class="content" id="main">
       <div class="hero">
-        <p class="meta"><span class="badge navy">spiggle/form-builder</span> <span class="badge">v1.0.0</span> <span class="badge teal">Filament 3 / 4 / 5</span></p>
+        <p class="meta"><span class="badge navy">spiggle/form-builder-core</span> <span class="badge">v2.0.3</span> <span class="badge teal">Filament 3 / 4 / 5</span></p>
         <h1>Build, publish, capture, and review forms</h1>
-        <p>A visual schema builder in Filament, a public Livewire renderer at <code>/forms/{path}</code>, and a submission inbox with filters, charts, and CSV / Excel / PDF export.</p>
+        <p>A visual drag-drop designer in Filament, a public Livewire renderer at <code>/forms/{path}</code>, and a submission inbox with filters, analytics charts (Pro), and CSV / Excel / PDF export.</p>
       </div>
 
       <h2 id="what">What it is</h2>
@@ -80,16 +80,16 @@
         </div>
         <div class="card">
           <h3><a href="features.html">Features</a></h3>
-          <p>Layouts, field types, builder UX, public forms, files, tags, redirects, submissions, charts, and exports.</p>
+          <p>Layouts, field types, visual designer, content blocks, thank-you layouts, input masking, public forms, files, submissions, charts, and exports.</p>
         </div>
         <div class="card">
           <h3><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub repository</a></h3>
-          <p>Source and issues for <code>spiggle/form-builder</code>.</p>
+          <p>Source and issues for <code>spiggle/form-builder-core</code>.</p>
         </div>
       </div>
 
       <h2 id="quick">Quick start</h2>
-<pre><code>composer require spiggle/form-builder:@dev
+<pre><code>composer require spiggle/form-builder-core
 php artisan vendor:publish --tag=form-builder-config
 php artisan migrate</code></pre>
 <pre><code>use Spiggle\FormBuilder\Filament\FormBuilderPlugin;

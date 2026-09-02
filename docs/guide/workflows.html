@@ -11,7 +11,7 @@
   <header class="site-header" id="top">
     <a class="brand" href="index.html">
       <span class="brand-mark">S</span>
-      <span>Form Builder <span class="brand-sub">Spiggle · v1.0.0</span></span>
+      <span>Form Builder <span class="brand-sub">Spiggle · v2.0.3</span></span>
     </a>
     <button class="nav-toggle" type="button" onclick="document.getElementById('top').classList.toggle('open')">Menu</button>
     <nav class="site-nav" aria-label="Documentation">
@@ -46,23 +46,19 @@
       <h2 id="create">Create a form (admin)</h2>
       <ol class="steps">
         <li>Open <strong>Forms</strong> and click <strong>Create</strong>.</li>
-        <li>On the <strong>Settings</strong> tab, enter a <strong>Name</strong>. Slug and public path auto-fill from the name on blur if they were empty.</li>
-        <li>Adjust <strong>Public path</strong> if you want a friendlier URL. Conflicts get a short <code>-f{hash}</code> suffix. The helper text shows the prefix (default <code>/forms/{path}</code>).</li>
-        <li>Choose <strong>Layout</strong>: Single page, Wizard, Tabs, or Pages.</li>
-        <li>Optional: description, default label position, success message, redirect URL after submit, notify emails.</li>
-        <li>Leave <strong>Published</strong> off until the builder is ready. <strong>Active</strong> defaults on. Both must be on for the public URL to work.</li>
-        <li>Save. You return to the <strong>list</strong> (create redirects to index). Open the form again to continue building.</li>
+        <li>Choose <strong>Blank form</strong> or <strong>Template</strong> on the start page.</li>
+        <li>Core templates: Contact Us, Customer Feedback. Pro templates (wizard/tabs/pages/accordion) show a PRO badge.</li>
+        <li>After create you land on the <strong>visual designer</strong> (edit page), not the list.</li>
       </ol>
 
-      <h2 id="build">Add sections and fields</h2>
+      <h2 id="build">Build in the visual designer</h2>
       <ol class="steps">
-        <li>Open the form and use the <strong>Builder</strong> tab (the tab is kept in the query string).</li>
-        <li>Each <strong>section</strong> is a collapsed repeater row labeled with the section title. Drag to reorder. Clone a section if the layout allows more than one.</li>
-        <li><strong>Single page</strong> forms cannot add or delete extra sections (max 1).</li>
-        <li>Inside a section, <strong>Add field</strong>. Collapsed rows show <code>Field label · type</code> (or the internal name).</li>
-        <li>Set label (auto-slugs the internal name if empty), type, width on the 12-column grid, required, optional label position override, label override, placeholder, hint, extra Laravel rules, and visibility pair.</li>
-        <li>For select/radio/multi-select/tags, add options. Collapsed option rows show the option label.</li>
-        <li>Switch to <strong>Preview</strong> for a live schematic of sections and spans. It is not the interactive public form.</li>
+        <li>The edit page is a 3-panel designer: pages + palette (left), canvas (center), inspector (right).</li>
+        <li>Add <strong>Content</strong> blocks (headings, banners, footers) and <strong>Fields</strong> from the palette.</li>
+        <li>Use the header bar for name, layout, publish/active, save, and open preview.</li>
+        <li>Configure the <strong>Thank you</strong> page from the left nav — Card (Core) or Review Card / Connect (Pro).</li>
+        <li>Set per-field <strong>input masks</strong> (Pro) in the inspector for text, phone, and number fields.</li>
+        <li>Form header/footer slots repeat chrome on every public page.</li>
       </ol>
       <div class="callout admin">
         <strong>Empty schema on create</strong>
@@ -82,6 +78,7 @@
         <li>Open the public URL. The page uses the package layout and CSS (no Filament theme required).</li>
         <li><strong>Wizard / pages:</strong> complete the step, click Next or Save and continue. Only that section is validated. Drafts restore if the visitor comes back in the same session.</li>
         <li><strong>Tabs:</strong> switch sections freely; everything validates on Submit.</li>
+        <li><strong>Accordion:</strong> expand/collapse sections; everything validates on Submit.</li>
         <li>Required fields show an asterisk. Errors appear under the field.</li>
         <li>On success, the success message displays. If a redirect URL is set, a Continue link appears (the visitor is not force-redirected).</li>
       </ol>
