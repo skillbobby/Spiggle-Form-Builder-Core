@@ -7,7 +7,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-use Spiggle\FormBuilder\Filament\Resources\Forms\Pages\CreateForm;
+use Spiggle\FormBuilder\Filament\Resources\Forms\Pages\ChooseFormStart;
 use Spiggle\FormBuilder\Filament\Resources\Forms\Pages\EditForm;
 use Spiggle\FormBuilder\Filament\Resources\Forms\Pages\ListForms;
 use Spiggle\FormBuilder\Filament\Resources\Forms\Pages\ViewForm;
@@ -72,7 +72,7 @@ class FormResource extends Resource
     {
         return [
             'index' => ListForms::route('/'),
-            'create' => CreateForm::route('/create'),
+            'create' => ChooseFormStart::route('/create'),
             'view' => ViewForm::route('/{record}'),
             'edit' => EditForm::route('/{record}/edit'),
         ];

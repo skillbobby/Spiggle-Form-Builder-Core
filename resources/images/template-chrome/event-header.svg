@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 280" fill="none" role="img" aria-label="Event registration">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#f59e0b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="280" fill="url(#bg)"/>
+  <circle cx="980" cy="72" r="18" fill="#fff" fill-opacity=".35"/>
+  <circle cx="1030" cy="120" r="10" fill="#fff" fill-opacity=".25"/>
+  <circle cx="900" cy="130" r="14" fill="#fff" fill-opacity=".2"/>
+  <text x="72" y="118" fill="#fff" font-family="system-ui,Segoe UI,sans-serif" font-size="44" font-weight="700">Reserve your spot</text>
+  <text x="72" y="166" fill="#ffedd5" font-family="system-ui,Segoe UI,sans-serif" font-size="22">Limited seats · Early-bird pricing available</text>
+</svg>

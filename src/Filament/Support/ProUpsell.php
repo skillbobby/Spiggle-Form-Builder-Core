@@ -5,6 +5,7 @@ namespace Spiggle\FormBuilder\Filament\Support;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
+use Spiggle\FormBuilder\Support\ThankYouLayouts;
 
 class ProUpsell
 {
@@ -133,5 +134,62 @@ class ProUpsell
 
         self::notify('Email notifications');
         $set('notify_emails', []);
+    }
+
+    public static function guardContentBlock(?string $type): bool
+    {
+        if ($type === null || $type === '' || FeatureCatalog::proUnlocked()) {
+            return true;
+        }
+
+        if (! \Spiggle\FormBuilder\Support\ContentBlockCatalog::isProBlock($type)) {
+            return true;
+        }
+
+        self::notify(ucfirst(str_replace('_', ' ', $type)).' content block');
+
+        return false;
+    }
+
+    public static function guardThankYouLayout(?string $layout, callable $set): void
+    {
+        if ($layout === null || $layout === '' || $layout === ThankYouLayouts::CORE_LAYOUT || FeatureCatalog::proUnlocked()) {
+            return;
+        }
+
+        if (! ThankYouLayouts::isProLayout($layout)) {
+            return;
+        }
+
+        $labels = ThankYouLayouts::labels();
+
+        self::notify(($labels[$layout] ?? 'Pro thank-you').' layout');
+        $set('layout', ThankYouLayouts::CORE_LAYOUT);
+    }
+
+    public static function guardThankYouCustomization(): bool
+    {
+        if (FeatureCatalog::proUnlocked()) {
+            return true;
+        }
+
+        self::notify('Thank-you page customization');
+
+        return false;
+    }
+
+    public static function guardInputMask(?string $mask): bool
+    {
+        if ($mask === null || $mask === '' || FeatureCatalog::proUnlocked()) {
+            return true;
+        }
+
+        if (! in_array($mask, \Spiggle\FormBuilder\Support\InputMaskCatalog::MASK_TYPES, true)) {
+            return true;
+        }
+
+        self::notify('Input masking');
+
+        return false;
     }
 }

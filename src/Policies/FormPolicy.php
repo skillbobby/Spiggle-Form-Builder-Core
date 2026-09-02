@@ -4,72 +4,72 @@ declare(strict_types=1);
 
 namespace Spiggle\FormBuilder\Policies;
 
-use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
 use Spiggle\FormBuilder\Models\Form;
-use Spiggle\FormBuilder\Support\AuthorizesFormBuilder;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FormPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('ViewAny:Form');
     }
 
     public function view(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('View:Form');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Create:Form');
     }
 
     public function update(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Update:Form');
     }
 
     public function delete(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Delete:Form');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('DeleteAny:Form');
     }
 
     public function restore(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Restore:Form');
     }
 
     public function forceDelete(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('ForceDelete:Form');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('ForceDeleteAny:Form');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('RestoreAny:Form');
     }
 
     public function replicate(AuthUser $authUser, Form $form): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Replicate:Form');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageForms($authUser);
+        return $authUser->can('Reorder:Form');
     }
+
 }

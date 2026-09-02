@@ -11,6 +11,8 @@ use Spiggle\FormBuilder\Database\Factories\FormFactory;
 use Spiggle\FormBuilder\Events\FormCreated;
 use Spiggle\FormBuilder\Events\FormDeleted;
 use Spiggle\FormBuilder\Events\FormUpdated;
+use Spiggle\FormBuilder\Services\FormDocumentService;
+use Spiggle\FormBuilder\Support\FormAvailability;
 use Spiggle\FormBuilder\Support\PathResolver;
 use Spiggle\FormBuilder\Support\SchemaNormalizer;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
@@ -33,6 +35,8 @@ class Form extends Model
         'settings',
         'is_published',
         'is_active',
+        'active_from',
+        'active_until',
         'success_message',
         'redirect_url',
         'notify_emails',
@@ -43,6 +47,8 @@ class Form extends Model
         'settings' => 'array',
         'is_published' => 'boolean',
         'is_active' => 'boolean',
+        'active_from' => 'datetime',
+        'active_until' => 'datetime',
         'notify_emails' => 'array',
     ];
 
@@ -79,6 +85,10 @@ class Form extends Model
             if ($form->isDirty('schema')) {
                 $form->schema = SchemaNormalizer::normalize($form->schema ?? []);
             }
+            if ($form->isDirty('settings')) {
+                $settings = is_array($form->settings) ? $form->settings : [];
+                $form->settings = SchemaNormalizer::normalizePageChrome($settings);
+            }
         });
     }
 
@@ -94,7 +104,46 @@ class Form extends Model
 
     public function scopePublished($query)
     {
-        return $query->where('is_published', true)->where('is_active', true);
+        return $query->where('is_published', true);
+    }
+
+    public function scopeAcceptingSubmissions($query)
+    {
+        return $query
+            ->where('is_published', true)
+            ->where('is_active', true)
+            ->where(function ($query): void {
+                $now = now();
+                $query
+                    ->whereNull('active_from')
+                    ->orWhere('active_from', '<=', $now);
+            })
+            ->where(function ($query): void {
+                $now = now();
+                $query
+                    ->whereNull('active_until')
+                    ->orWhere('active_until', '>=', $now);
+            });
+    }
+
+    public function isCurrentlyActive(): bool
+    {
+        return FormAvailability::isCurrentlyActive($this);
+    }
+
+    public function isPubliclyAvailable(): bool
+    {
+        return FormAvailability::isPubliclyAvailable($this);
+    }
+
+    public function unavailabilityReason(): ?string
+    {
+        return FormAvailability::unavailabilityReason($this);
+    }
+
+    public function scheduleHint(): ?string
+    {
+        return FormAvailability::scheduleHint($this);
     }
 
     public function publicUrl(): string
@@ -107,7 +156,7 @@ class Form extends Model
      */
     public function document(): array
     {
-        return SchemaNormalizer::document($this->toArray());
+        return app(FormDocumentService::class)->export($this);
     }
 
     /**

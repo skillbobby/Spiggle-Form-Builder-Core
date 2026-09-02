@@ -13,12 +13,16 @@
     $described = $id.'-hint';
 @endphp
 
-<div class="fb-span-{{ $span }} fb-field {{ $position }} {{ $errors->has($errorKey) ? 'is-invalid' : '' }}" wire:key="field-{{ $name }}">
-    @if ($position !== 'inside' && $position !== 'below')
-        <label class="fb-label" for="{{ $id }}">
-            {{ $label }}@if ($required) <span class="fb-req" aria-hidden="true">*</span>@endif
-        </label>
-    @endif
+@php $isToggle = in_array($type, ['boolean', 'toggle'], true); @endphp
+@php
+    $showLabelAbove = ! $isToggle && ! in_array($position, ['inside', 'below'], true);
+    $showLabelBelow = ! $isToggle && in_array($position, ['inside', 'below'], true);
+    $requiredMark = $required ? ' <span class="fb-req" aria-hidden="true">*</span>' : '';
+@endphp
+<div class="fb-span-{{ $span }} fb-field {{ $position }} {{ $isToggle ? 'fb-field-toggle' : '' }} {{ $errors->has($errorKey) ? 'is-invalid' : '' }}" wire:key="field-{{ $name }}">
+    <label @class(['fb-label', 'fb-hidden' => ! $showLabelAbove]) for="{{ $id }}">
+        {{ $label }}{!! $requiredMark !!}
+    </label>
 
     @if (in_array($type, ['select'], true))
         <select id="{{ $id }}" class="fb-select" wire:model.blur="data.{{ $name }}" @required($required) aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}" aria-describedby="{{ $described }}">
@@ -67,43 +71,38 @@
             placeholder="{{ $placeholder }}" wire:model.blur="data.{{ $name }}" @required($required)
             aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}"
             aria-describedby="{{ $described }}"></textarea>
-    @elseif (in_array($type, ['boolean', 'toggle'], true))
-        <label>
-            <input type="checkbox" wire:model="data.{{ $name }}">
-            {{ $label }}
+    @elseif ($isToggle)
+        <label class="fb-toggle" for="{{ $id }}">
+            <input type="checkbox" id="{{ $id }}" class="fb-toggle-input" wire:model.live="data.{{ $name }}" @required($required) aria-describedby="{{ $described }}">
+            <span class="fb-toggle-track" aria-hidden="true"><span class="fb-toggle-thumb"></span></span>
+            <span class="fb-toggle-label">
+                {{ $label }}{!! $requiredMark !!}
+            </span>
         </label>
     @elseif ($type === 'file')
         <input id="{{ $id }}" class="fb-file" type="file" wire:model="data.{{ $name }}"
-            @if (data_get($field, 'meta.multiple')) multiple @endif
+            {{ data_get($field, 'meta.multiple') ? 'multiple' : '' }}
             aria-describedby="{{ $described }}">
         <div wire:loading wire:target="data.{{ $name }}" class="fb-hint">Uploading…</div>
-    @elseif ($type === 'date')
-        <input id="{{ $id }}" class="fb-input" type="date" wire:model="data.{{ $name }}" @required($required) aria-describedby="{{ $described }}">
-    @elseif ($type === 'datetime')
-        <input id="{{ $id }}" class="fb-input" type="datetime-local" wire:model="data.{{ $name }}" @required($required) aria-describedby="{{ $described }}">
-    @elseif ($type === 'number')
-        <input id="{{ $id }}" class="fb-input" type="number" placeholder="{{ $placeholder }}" wire:model="data.{{ $name }}" @required($required) aria-describedby="{{ $described }}">
-    @elseif ($type === 'email')
-        <input id="{{ $id }}" class="fb-input" type="email" placeholder="{{ $placeholder }}" wire:model.blur="data.{{ $name }}" @required($required) aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}" aria-describedby="{{ $described }}">
-    @elseif ($type === 'phone')
-        <input id="{{ $id }}" class="fb-input" type="tel" placeholder="{{ $placeholder }}" wire:model="data.{{ $name }}" @required($required) aria-describedby="{{ $described }}">
-    @elseif ($type === 'url')
-        <input id="{{ $id }}" class="fb-input" type="url" placeholder="{{ $placeholder }}" wire:model.blur="data.{{ $name }}" @required($required) aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}" aria-describedby="{{ $described }}">
-    @else
-        <input id="{{ $id }}" class="fb-input" type="text" placeholder="{{ $placeholder }}" wire:model.blur="data.{{ $name }}" @required($required) aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}" aria-describedby="{{ $described }}">
+    @elseif (in_array($type, ['text', 'phone', 'number', 'date', 'datetime', 'email', 'url'], true))
+        @include('form-builder::components.masked-input', [
+            'field' => $field,
+            'id' => $id,
+            'name' => $name,
+            'type' => $type,
+            'placeholder' => $placeholder,
+            'required' => $required,
+            'errorKey' => $errorKey,
+            'described' => $described,
+        ])
+
     @endif
 
-    @if ($position === 'below' || $position === 'inside')
-        <label class="fb-label" for="{{ $id }}">
-            {{ $label }}@if ($required) <span class="fb-req">*</span>@endif
-        </label>
-    @endif
+    <label @class(['fb-label', 'fb-hidden' => ! $showLabelBelow]) for="{{ $id }}">
+        {{ $label }}{!! $required ? ' <span class="fb-req">*</span>' : '' !!}
+    </label>
 
-    @if ($hint)
-        <p class="fb-hint" id="{{ $described }}">{{ $hint }}</p>
-    @else
-        <span id="{{ $described }}" class="fb-hidden"></span>
-    @endif
+    <p @class(['fb-hint', 'fb-hidden' => blank($hint)]) id="{{ $described }}">{{ $hint }}</p>
 
     @error($errorKey)
         <p class="fb-error" role="alert">{{ $message }}</p>

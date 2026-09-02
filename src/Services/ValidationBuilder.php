@@ -3,6 +3,7 @@
 namespace Spiggle\FormBuilder\Services;
 
 use Spiggle\FormBuilder\Models\Form;
+use Spiggle\FormBuilder\Support\ContentBlockCatalog;
 use Spiggle\FormBuilder\Support\FieldCatalog;
 
 class ValidationBuilder
@@ -23,36 +24,59 @@ class ValidationBuilder
             }
 
             foreach ($container['fields'] ?? [] as $field) {
-                if (! is_array($field) || blank($field['name'] ?? null)) {
+                if (! is_array($field)) {
                     continue;
                 }
 
-                $name = (string) $field['name'];
-                $type = (string) ($field['type'] ?? 'text');
-                $fieldRules = [];
-
-                if (! empty($field['required'])) {
-                    $fieldRules[] = 'required';
-                } else {
-                    $fieldRules[] = 'nullable';
-                }
-
-                $fieldRules = array_merge($fieldRules, FieldCatalog::defaultRules($type));
-
-                $extra = $field['validation_rules'] ?? [];
-                if (is_array($extra)) {
-                    foreach ($extra as $rule) {
-                        if (is_string($rule) && $rule !== '' && ! in_array($rule, $fieldRules, true)) {
-                            $fieldRules[] = $rule;
-                        }
-                    }
-                }
-
-                $rules['data.'.$name] = array_values(array_unique($fieldRules));
+                $this->appendFieldRules($field, $rules);
             }
         }
 
         return $this->applyHooks($form, $rules);
+    }
+
+    /**
+     * @param  array<string, mixed>  $field
+     * @param  array<string, array<int, mixed>>  $rules
+     */
+    protected function appendFieldRules(array $field, array &$rules): void
+    {
+        if (ContentBlockCatalog::isSection($field)) {
+            foreach ($field['children'] ?? [] as $child) {
+                if (is_array($child)) {
+                    $this->appendFieldRules($child, $rules);
+                }
+            }
+
+            return;
+        }
+
+        if (ContentBlockCatalog::isContent($field) || blank($field['name'] ?? null)) {
+            return;
+        }
+
+        $name = (string) $field['name'];
+        $type = (string) ($field['type'] ?? 'text');
+        $fieldRules = [];
+
+        if (! empty($field['required'])) {
+            $fieldRules[] = 'required';
+        } else {
+            $fieldRules[] = 'nullable';
+        }
+
+        $fieldRules = array_merge($fieldRules, FieldCatalog::defaultRules($type));
+
+        $extra = $field['validation_rules'] ?? [];
+        if (is_array($extra)) {
+            foreach ($extra as $rule) {
+                if (is_string($rule) && $rule !== '' && ! in_array($rule, $fieldRules, true)) {
+                    $fieldRules[] = $rule;
+                }
+            }
+        }
+
+        $rules['data.'.$name] = array_values(array_unique($fieldRules));
     }
 
     /**
@@ -85,14 +109,42 @@ class ValidationBuilder
             }
 
             foreach ($container['fields'] ?? [] as $field) {
-                $name = $field['name'] ?? null;
-                if (! $name) {
+                if (! is_array($field)) {
                     continue;
                 }
-                $attributes['data.'.$name] = (string) ($field['label_override'] ?: $field['label'] ?? $name);
+
+                $this->appendFieldAttributes($field, $attributes);
             }
         }
 
         return $attributes;
+    }
+
+    /**
+     * @param  array<string, mixed>  $field
+     * @param  array<string, string>  $attributes
+     */
+    protected function appendFieldAttributes(array $field, array &$attributes): void
+    {
+        if (ContentBlockCatalog::isSection($field)) {
+            foreach ($field['children'] ?? [] as $child) {
+                if (is_array($child)) {
+                    $this->appendFieldAttributes($child, $attributes);
+                }
+            }
+
+            return;
+        }
+
+        if (ContentBlockCatalog::isContent($field)) {
+            return;
+        }
+
+        $name = $field['name'] ?? null;
+        if (! $name) {
+            return;
+        }
+
+        $attributes['data.'.$name] = (string) ($field['label_override'] ?: $field['label'] ?? $name);
     }
 }

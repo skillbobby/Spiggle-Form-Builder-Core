@@ -4,6 +4,7 @@ namespace Spiggle\FormBuilder\Filament;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
+use Filament\Support\Assets\Css;
 use Spiggle\FormBuilder\Filament\Resources\Forms\FormResource;
 use Spiggle\FormBuilder\Filament\Resources\FormSubmissions\FormSubmissionResource;
 
@@ -29,6 +30,10 @@ class FormBuilderPlugin implements Plugin
 
     public function register(Panel $panel): void
     {
+        $panel->assets([
+            Css::make('form-designer', __DIR__.'/../../resources/css/form-designer.css'),
+        ]);
+
         $panel->resources([
             FormResource::class,
             FormSubmissionResource::class,

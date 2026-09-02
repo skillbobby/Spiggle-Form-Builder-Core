@@ -14,6 +14,7 @@ use Spiggle\FormBuilder\Filament\Widgets\FormSubmissionsChart;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Services\FormRenderer;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
+use Spiggle\FormBuilder\Support\PathResolver;
 
 class ViewForm extends ViewRecord
 {
@@ -29,7 +30,14 @@ class ViewForm extends ViewRecord
                 ->label('Open public form')
                 ->icon('heroicon-o-arrow-top-right-on-square')
                 ->url(fn (): string => $this->getRecord()->publicUrl())
-                ->openUrlInNewTab(),
+                ->openUrlInNewTab()
+                ->visible(fn (): bool => $this->getRecord()->isPubliclyAvailable()),
+            Action::make('previewDraft')
+                ->label('Preview draft')
+                ->icon('heroicon-o-eye')
+                ->url(fn (): string => PathResolver::previewUrl($this->getRecord()))
+                ->openUrlInNewTab()
+                ->visible(fn (): bool => ! $this->getRecord()->is_published),
         ];
     }
 
@@ -46,8 +54,13 @@ class ViewForm extends ViewRecord
                     TextEntry::make('container_type')->badge(),
                     TextEntry::make('base_path')
                         ->label('Public URL')
-                        ->url($record->publicUrl())
-                        ->state($record->publicUrl()),
+                        ->url(fn (Form $record): ?string => $record->isPubliclyAvailable() ? $record->publicUrl() : null)
+                        ->state(fn (Form $record): string => $record->is_published
+                            ? $record->publicUrl()
+                            : $record->publicUrl().' (draft — publish to share)')
+                        ->helperText(fn (Form $record): ?string => $record->is_published && ! $record->isPubliclyAvailable()
+                            ? ($record->unavailabilityReason() ?? 'Not accepting submissions right now.')
+                            : null),
                     TextEntry::make('is_published')->badge(),
                     TextEntry::make('submissions_count')
                         ->state(fn (Form $record): int => $record->submissions()->count()),

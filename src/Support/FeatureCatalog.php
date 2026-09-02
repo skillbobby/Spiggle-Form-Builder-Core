@@ -59,6 +59,8 @@ class FeatureCatalog
         'import_custom_fields',
         'email_notify',
         'page_drafts',
+        'thank_you_customization',
+        'input_masking',
     ];
 
     /**

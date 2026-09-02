@@ -3,6 +3,7 @@
 namespace Spiggle\FormBuilder\Filament\Resources\Forms\Tables;
 
 use Filament\Actions\Action;
+use Filament\Actions\BulkAction;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -13,12 +14,14 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Str;
 use Spiggle\FormBuilder\Filament\Resources\Forms\FormResource;
 use Spiggle\FormBuilder\Filament\Support\ProUpsell;
 use Spiggle\FormBuilder\Models\Form;
+use Spiggle\FormBuilder\Services\FormDocumentService;
 use Spiggle\FormBuilder\Support\ContainerTypes;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
-
 class FormsTable
 {
     public static function configure(Table $table): Table
@@ -28,7 +31,12 @@ class FormsTable
                 TextColumn::make('name')
                     ->searchable()
                     ->sortable()
-                    ->description(fn (Form $record): string => '/'.trim((string) config('form-builder.route_prefix', 'forms'), '/').'/'.$record->base_path),
+                    ->description(fn (Form $record): string => collect([
+                        $record->is_published
+                            ? '/'.trim((string) config('form-builder.route_prefix', 'forms'), '/').'/'.$record->base_path
+                            : 'Draft — publish to share at /'.trim((string) config('form-builder.route_prefix', 'forms'), '/').'/'.$record->base_path,
+                        $record->scheduleHint(),
+                    ])->filter()->implode(' · ')),
                 TextColumn::make('container_type')
                     ->label('Layout')
                     ->badge()
@@ -65,7 +73,13 @@ class FormsTable
                     ->icon('heroicon-o-arrow-top-right-on-square')
                     ->url(fn (Form $record): string => $record->publicUrl())
                     ->openUrlInNewTab()
-                    ->visible(fn (Form $record): bool => $record->is_published && $record->is_active),
+                    ->visible(fn (Form $record): bool => $record->isPubliclyAvailable()),
+                Action::make('preview')
+                    ->label('Preview')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn (Form $record): string => \Spiggle\FormBuilder\Support\PathResolver::previewUrl($record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Form $record): bool => ! $record->is_published),
                 Action::make('clone')
                     ->label(FeatureCatalog::proUnlocked() ? 'Clone' : 'Clone · PRO')
                     ->icon('heroicon-o-document-duplicate')
@@ -88,6 +102,38 @@ class FormsTable
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
+                    BulkAction::make('exportJson')
+                        ->label('Export JSON')
+                        ->icon('heroicon-o-arrow-down-tray')
+                        ->action(function (Collection $records, FormDocumentService $documents) {
+                            if ($records->count() === 1) {
+                                /** @var Form $record */
+                                $record = $records->first();
+                                $filename = Str::slug($record->slug ?: $record->name).'.json';
+
+                                return response()->streamDownload(
+                                    function () use ($documents, $record): void {
+                                        echo $documents->encode($record);
+                                    },
+                                    $filename,
+                                    ['Content-Type' => 'application/json'],
+                                );
+                            }
+
+                            $payload = $records
+                                ->map(fn (Form $form): array => $documents->export($form))
+                                ->values()
+                                ->all();
+                            $filename = 'forms-export-'.now()->format('Ymd-His').'.json';
+
+                            return response()->streamDownload(
+                                function () use ($payload): void {
+                                    echo json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+                                },
+                                $filename,
+                                ['Content-Type' => 'application/json'],
+                            );
+                        }),
                     DeleteBulkAction::make(),
                 ]),
             ])

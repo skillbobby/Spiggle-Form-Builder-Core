@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 264" fill="none" role="img" aria-label="Product order">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="264" fill="url(#bg)"/>
+  <rect x="880" y="56" width="220" height="152" rx="16" fill="#fff" fill-opacity=".12"/>
+  <rect x="912" y="88" width="156" height="20" rx="6" fill="#fff" fill-opacity=".35"/>
+  <rect x="912" y="120" width="120" height="16" rx="6" fill="#fff" fill-opacity=".25"/>
+  <rect x="912" y="148" width="88" height="28" rx="8" fill="#fff" fill-opacity=".55"/>
+  <text x="72" y="112" fill="#fff" font-family="system-ui,Segoe UI,sans-serif" font-size="42" font-weight="700">Place your order</text>
+  <text x="72" y="160" fill="#dbeafe" font-family="system-ui,Segoe UI,sans-serif" font-size="22">Fast fulfillment and tracked shipping</text>
+</svg>

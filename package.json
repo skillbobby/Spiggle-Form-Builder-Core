@@ -1,0 +1,13 @@
+{
+    "name": "@spiggle/form-builder-core",
+    "private": true,
+    "scripts": {
+        "build": "esbuild resources/js/form-designer-sort.js --bundle --format=iife --outfile=resources/dist/form-designer-sort.js --minify && esbuild resources/js/public-form-mask.js --bundle --format=iife --outfile=resources/dist/public-form-mask.js --minify"
+    },
+    "dependencies": {
+        "sortablejs": "^1.15.2"
+    },
+    "devDependencies": {
+        "esbuild": "^0.25.0"
+    }
+}

@@ -75,4 +75,9 @@ class PathResolver
 
         return url($prefix !== '' ? $prefix.'/'.$path : $path);
     }
+
+    public static function previewUrl(Form $form): string
+    {
+        return self::publicUrl($form).'?preview=1';
+    }
 }

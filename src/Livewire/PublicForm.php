@@ -17,10 +17,14 @@ use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Services\FormRenderer;
 use Spiggle\FormBuilder\Services\SubmissionManager;
 use Spiggle\FormBuilder\Services\ValidationBuilder;
+use Spiggle\FormBuilder\Support\AuthorizesFormBuilder;
 use Spiggle\FormBuilder\Support\ContainerTypes;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
 use Spiggle\FormBuilder\Support\FieldCatalog;
+use Spiggle\FormBuilder\Support\PageChrome;
 use Spiggle\FormBuilder\Support\PathResolver;
+use Spiggle\FormBuilder\Support\SchemaNormalizer;
+use Spiggle\FormBuilder\Support\ThankYouLayouts;
 
 class PublicForm extends Component implements HasActions, HasSchemas
 {
@@ -46,17 +50,41 @@ class PublicForm extends Component implements HasActions, HasSchemas
 
     public ?string $redirectUrl = null;
 
+    public ?string $submittedAt = null;
+
+    public ?string $unavailabilityReason = null;
+
+    public bool $previewMode = false;
+
     public function mount(string $path): void
     {
         $path = trim($path, '/');
 
-        $form = Form::query()->published()
+        $form = Form::query()
             ->where(function ($q) use ($path): void {
                 $q->where('base_path', $path)->orWhere('slug', $path);
             })
-            ->firstOrFail();
+            ->first();
+
+        if (! $form) {
+            abort(404);
+        }
+
+        if (! $form->is_published) {
+            if ($this->allowDraftPreview()) {
+                $this->previewMode = true;
+            } else {
+                abort(404);
+            }
+        }
 
         $this->formId = $form->id;
+        $this->unavailabilityReason = $form->is_published ? $form->unavailabilityReason() : null;
+
+        if ($this->unavailabilityReason !== null) {
+            return;
+        }
+
         $this->hydrateDraft($form);
         $this->editors->fill($this->data);
     }
@@ -97,7 +125,28 @@ class PublicForm extends Component implements HasActions, HasSchemas
 
     public function form(): Form
     {
-        return Form::query()->published()->findOrFail($this->formId);
+        $query = Form::query();
+
+        if (! $this->previewMode) {
+            $query->published();
+        }
+
+        return $query->findOrFail($this->formId);
+    }
+
+    public function isAvailable(): bool
+    {
+        if ($this->previewMode) {
+            return false;
+        }
+
+        return $this->unavailabilityReason === null && $this->form()->isPubliclyAvailable();
+    }
+
+    protected function allowDraftPreview(): bool
+    {
+        return request()->boolean('preview')
+            && AuthorizesFormBuilder::userCanManageForms();
     }
 
     public function resolvedLayout(): string
@@ -206,6 +255,13 @@ class PublicForm extends Component implements HasActions, HasSchemas
     public function submit(): void
     {
         $form = $this->form();
+
+        if (! $this->isAvailable()) {
+            $this->unavailabilityReason = $form->unavailabilityReason() ?? 'This form is not accepting responses.';
+
+            return;
+        }
+
         $this->validateForm();
 
         app(SubmissionManager::class)->capture($form, $this->data, request(), [
@@ -217,7 +273,76 @@ class PublicForm extends Component implements HasActions, HasSchemas
         $this->submitted = true;
         $this->successMessage = $form->success_message ?: 'Thanks — your response has been recorded.';
         $this->redirectUrl = $form->redirect_url;
+        $this->submittedAt = now()->format('M j, Y \a\t g:i A');
         $this->data = [];
+    }
+
+    public function submitAnother(): void
+    {
+        $form = $this->form();
+        $this->submitted = false;
+        $this->successMessage = null;
+        $this->redirectUrl = null;
+        $this->submittedAt = null;
+        $this->step = 0;
+        $this->openSections = [0];
+        $this->tagDraft = [];
+        $this->hydrateDraft($form);
+        $this->editors->fill($this->data);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function thankYouSettings(): array
+    {
+        $form = $this->form();
+        $settings = SchemaNormalizer::thankYouSettings($form->settings ?? [], $form->toArray());
+        $settings['layout'] = ThankYouLayouts::resolve((string) ($settings['layout'] ?? ThankYouLayouts::CORE_LAYOUT));
+
+        return $settings;
+    }
+
+    /**
+     * @return array{header_blocks: list<array<string, mixed>>, footer_blocks: list<array<string, mixed>>, header_placement: string, footer_placement: string}
+     */
+    public function pageChromeConfig(): array
+    {
+        return PageChrome::settings($this->form()->settings ?? []);
+    }
+
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function pageChromeBlocks(string $zone, string $context = 'all'): array
+    {
+        $config = $this->pageChromeConfig();
+        $blocks = $zone === 'header' ? $config['header_blocks'] : $config['footer_blocks'];
+        $placement = $zone === 'header' ? $config['header_placement'] : $config['footer_placement'];
+        $partitioned = PageChrome::partitionBlocks($blocks, $zone, $placement);
+
+        return match ($context) {
+            'inside' => $partitioned['inside'],
+            'outside' => $partitioned['outside'],
+            default => $blocks,
+        };
+    }
+
+    public function pageChromeZoneBleeds(string $zone): bool
+    {
+        $config = $this->pageChromeConfig();
+        $placement = $zone === 'header' ? $config['header_placement'] : $config['footer_placement'];
+        $inside = $this->pageChromeBlocks($zone, 'inside');
+
+        return PageChrome::zoneBleeds($placement, $inside, $zone);
+    }
+
+    public function pageChromeBlockBleeds(array $block, string $zone): bool
+    {
+        $config = $this->pageChromeConfig();
+        $placement = $zone === 'header' ? $config['header_placement'] : $config['footer_placement'];
+
+        return PageChrome::blockBleeds($block, $zone, $placement);
     }
 
     public function render(): View

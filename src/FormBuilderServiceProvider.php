@@ -2,6 +2,9 @@
 
 namespace Spiggle\FormBuilder;
 
+use Filament\Support\Assets\Css;
+use Filament\Support\Assets\Js;
+use Filament\Support\Facades\FilamentAsset;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -10,6 +13,7 @@ use Spiggle\FormBuilder\Console\ExportFormsCommand;
 use Spiggle\FormBuilder\Console\ImportFormsCommand;
 use Spiggle\FormBuilder\Console\SeedSampleFormsCommand;
 use Spiggle\FormBuilder\Console\VerifyFormBuilderCommand;
+use Spiggle\FormBuilder\Filament\Livewire\FormDesigner;
 use Spiggle\FormBuilder\Http\Middleware\ResolveFormPath;
 use Spiggle\FormBuilder\Livewire\PublicForm;
 use Spiggle\FormBuilder\Models\Form;
@@ -23,6 +27,8 @@ use Spiggle\FormBuilder\Services\FormRenderer;
 use Spiggle\FormBuilder\Services\SubmissionManager;
 use Spiggle\FormBuilder\Licensing\RegistersAddonLicense;
 use Spiggle\FormBuilder\Services\ValidationBuilder;
+use Spiggle\FormBuilder\Support\TemplateChromeAssets;
+use Spiggle\FormBuilder\Support\PublicFormMaskAssets;
 
 class FormBuilderServiceProvider extends ServiceProvider
 {
@@ -55,12 +61,28 @@ class FormBuilderServiceProvider extends ServiceProvider
             __DIR__.'/../resources/views' => resource_path('views/vendor/form-builder'),
         ], 'form-builder-views');
 
+        $this->publishes([
+            __DIR__.'/../resources/images/template-chrome' => public_path('vendor/spiggle-form-builder/template-chrome'),
+        ], 'form-builder-chrome-assets');
+
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'form-builder');
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
 
+        TemplateChromeAssets::registerRoutes();
+        PublicFormMaskAssets::registerRoutes();
+
+        if (class_exists(FilamentAsset::class)) {
+            FilamentAsset::register([
+                Css::make('form-designer', __DIR__.'/../resources/css/form-designer.css'),
+                Js::make('form-designer-sort', __DIR__.'/../resources/dist/form-designer-sort.js')
+                    ->loadedOnRequest(),
+            ]);
+        }
+
         if (class_exists(Livewire::class)) {
             Livewire::component('form-builder.public-form', PublicForm::class);
+            Livewire::component('form-builder.form-designer', FormDesigner::class);
         }
 
         if (config('form-builder.root_paths')) {

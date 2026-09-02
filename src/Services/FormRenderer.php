@@ -20,6 +20,7 @@ use Filament\Schemas\Components\Wizard;
 use Filament\Schemas\Components\Wizard\Step;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Support\ContainerTypes;
+use Spiggle\FormBuilder\Support\ContentBlockCatalog;
 
 class FormRenderer
 {
@@ -93,6 +94,17 @@ class FormRenderer
             if (! is_array($field)) {
                 continue;
             }
+
+            if (ContentBlockCatalog::isContent($field)) {
+                if (ContentBlockCatalog::isSection($field)) {
+                    $components[] = $this->makeSectionContainer($field, $stateKey);
+                } else {
+                    $components[] = $this->makeContentPlaceholder($field);
+                }
+
+                continue;
+            }
+
             $component = $this->makeField($field, $stateKey);
             if ($component) {
                 $components[] = $component;
@@ -168,12 +180,7 @@ class FormRenderer
     public function makeRichEditor(array $field, string $name, bool $hideLabel = false, ?string $htmlId = null): RichEditor
     {
         $editor = RichEditor::make($name)
-            ->fileAttachments(false)
-            ->toolbarButtons([
-                ['bold', 'italic', 'underline', 'link'],
-                ['bulletList', 'orderedList'],
-                ['undo', 'redo'],
-            ]);
+            ->fileAttachments(false);
 
         if ($hideLabel) {
             $editor->hiddenLabel();
@@ -289,6 +296,12 @@ class FormRenderer
             if (! is_array($field)) {
                 continue;
             }
+
+            if (ContentBlockCatalog::isContent($field)) {
+                $html .= $this->schematicContentHtml($field);
+                continue;
+            }
+
             $span = max(1, min(12, (int) ($field['column_span'] ?? 12)));
             $fieldLabel = e((string) ($field['label'] ?? $field['name'] ?? 'Field'));
             $fieldType = e((string) ($field['type'] ?? 'text'));
@@ -301,5 +314,112 @@ class FormRenderer
         }
 
         return $html.'</div>';
+    }
+
+    /**
+     * @param  array<string, mixed>  $block
+     */
+    protected function schematicContentHtml(array $block): string
+    {
+        if (ContentBlockCatalog::isSection($block)) {
+            $span = max(1, min(12, (int) ($block['column_span'] ?? 12)));
+            $title = e((string) data_get($block, 'meta.title', 'Section'));
+            $html = '<div style="grid-column:span '.$span.' / span '.$span.';border:1px solid color-mix(in srgb, currentColor 22%, transparent);border-radius:12px;padding:12px;background:color-mix(in srgb, currentColor 3%, transparent)">';
+            $html .= '<div style="font-size:12px;font-weight:700;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid color-mix(in srgb, currentColor 18%, transparent)">'.$title.'</div>';
+            $html .= '<div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:8px">';
+
+            foreach ($block['children'] ?? [] as $child) {
+                if (! is_array($child)) {
+                    continue;
+                }
+
+                if (ContentBlockCatalog::isContent($child)) {
+                    $html .= $this->schematicContentHtml($child);
+                    continue;
+                }
+
+                $childSpan = max(1, min(12, (int) ($child['column_span'] ?? 12)));
+                $childLabel = e((string) ($child['label'] ?? $child['name'] ?? 'Field'));
+                $html .= '<div style="grid-column:span '.$childSpan.' / span '.$childSpan.';min-height:48px;border:1px solid color-mix(in srgb, currentColor 22%, transparent);border-radius:8px;padding:8px 10px">';
+                $html .= '<div style="font-size:12px;font-weight:600">'.$childLabel.'</div>';
+                $html .= '</div>';
+            }
+
+            return $html.'</div></div>';
+        }
+
+        $span = max(1, min(12, (int) ($block['column_span'] ?? 12)));
+        $type = e((string) ($block['type'] ?? 'content'));
+        $label = match ($block['type'] ?? '') {
+            'heading' => e((string) data_get($block, 'meta.text', 'Heading')),
+            'banner' => 'Banner',
+            'footer' => 'Footer',
+            default => ucfirst(str_replace('_', ' ', (string) ($block['type'] ?? 'content'))),
+        };
+
+        $html = '<div style="grid-column:span '.$span.' / span '.$span.';min-height:40px;border:1px dashed color-mix(in srgb, currentColor 22%, transparent);border-radius:8px;padding:8px 10px;background:color-mix(in srgb, currentColor 3%, transparent)">';
+        $html .= '<div style="font-size:12px;font-weight:600">'.$label.'</div>';
+        $html .= '<div style="margin-top:6px;font-size:11px;opacity:.55">'.$type.'</div>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
+     * @param  array<string, mixed>  $block
+     */
+    protected function makeSectionContainer(array $block, string $stateKey = 'data'): mixed
+    {
+        $meta = is_array($block['meta'] ?? null) ? $block['meta'] : [];
+        $styles = ContentBlockCatalog::sectionStyles($meta);
+        $style = collect($styles)->map(fn ($value, $key) => $key.': '.$value)->implode('; ');
+        $childComponents = [];
+
+        foreach ($block['children'] ?? [] as $child) {
+            if (! is_array($child)) {
+                continue;
+            }
+
+            if (ContentBlockCatalog::isContent($child)) {
+                if (ContentBlockCatalog::isSection($child)) {
+                    $childComponents[] = $this->makeSectionContainer($child, $stateKey);
+                } else {
+                    $childComponents[] = $this->makeContentPlaceholder($child);
+                }
+
+                continue;
+            }
+
+            $component = $this->makeField($child, $stateKey);
+            if ($component) {
+                $childComponents[] = $component;
+            }
+        }
+
+        $title = (string) ($meta['title'] ?? 'Section');
+        $span = max(1, min(12, (int) ($block['column_span'] ?? 12)));
+
+        $section = Section::make($title)
+            ->schema([Grid::make(12)->schema($childComponents)])
+            ->extraAttributes(['style' => $style]);
+
+        if (empty($meta['show_title'])) {
+            $section->heading('');
+        }
+
+        return $section->columnSpan(['default' => 12, 'md' => $span]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $block
+     */
+    protected function makeContentPlaceholder(array $block): mixed
+    {
+        $span = max(1, min(12, (int) ($block['column_span'] ?? 12)));
+        $label = ucfirst(str_replace('_', ' ', (string) ($block['type'] ?? 'content')));
+
+        return \Filament\Schemas\Components\Html::make(new \Illuminate\Support\HtmlString(
+            '<div style="padding:.5rem;border:1px dashed #d1d5db;border-radius:8px;font-size:.85rem">'.$label.'</div>'
+        ))->columnSpan(['default' => 12, 'md' => $span]);
     }
 }

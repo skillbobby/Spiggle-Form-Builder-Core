@@ -27,8 +27,9 @@ class ResolveFormPath
         }
 
         $form = Form::query()->published()
-            ->where('base_path', $path)
-            ->orWhere('slug', $path)
+            ->where(function ($query) use ($path): void {
+                $query->where('base_path', $path)->orWhere('slug', $path);
+            })
             ->first();
 
         if (! $form) {

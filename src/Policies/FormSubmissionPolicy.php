@@ -4,72 +4,72 @@ declare(strict_types=1);
 
 namespace Spiggle\FormBuilder\Policies;
 
-use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Foundation\Auth\User as AuthUser;
 use Spiggle\FormBuilder\Models\FormSubmission;
-use Spiggle\FormBuilder\Support\AuthorizesFormBuilder;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FormSubmissionPolicy
 {
     use HandlesAuthorization;
-
+    
     public function viewAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanViewSubmissions($authUser);
+        return $authUser->can('ViewAny:FormSubmission');
     }
 
     public function view(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanViewSubmissions($authUser);
+        return $authUser->can('View:FormSubmission');
     }
 
     public function create(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Create:FormSubmission');
     }
 
     public function update(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Update:FormSubmission');
     }
 
     public function delete(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Delete:FormSubmission');
     }
 
     public function deleteAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('DeleteAny:FormSubmission');
     }
 
     public function restore(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Restore:FormSubmission');
     }
 
     public function forceDelete(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('ForceDelete:FormSubmission');
     }
 
     public function forceDeleteAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('ForceDeleteAny:FormSubmission');
     }
 
     public function restoreAny(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('RestoreAny:FormSubmission');
     }
 
     public function replicate(AuthUser $authUser, FormSubmission $formSubmission): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Replicate:FormSubmission');
     }
 
     public function reorder(AuthUser $authUser): bool
     {
-        return AuthorizesFormBuilder::userCanManageSubmissions($authUser);
+        return $authUser->can('Reorder:FormSubmission');
     }
+
 }
