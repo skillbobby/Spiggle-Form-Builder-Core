@@ -5,6 +5,7 @@ namespace Spiggle\FormBuilder\Services;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Support\ContentBlockCatalog;
 use Spiggle\FormBuilder\Support\FieldCatalog;
+use Spiggle\FormBuilder\Support\FieldVisibility;
 
 class ValidationBuilder
 {
@@ -13,7 +14,7 @@ class ValidationBuilder
      *
      * @return array<string, array<int, mixed>>
      */
-    public function rules(Form $form, ?int $containerIndex = null): array
+    public function rules(Form $form, ?int $containerIndex = null, ?array $data = null): array
     {
         $containers = $form->schema ?? [];
         $rules = [];
@@ -28,7 +29,7 @@ class ValidationBuilder
                     continue;
                 }
 
-                $this->appendFieldRules($field, $rules);
+                $this->appendFieldRules($field, $rules, $data);
             }
         }
 
@@ -39,12 +40,12 @@ class ValidationBuilder
      * @param  array<string, mixed>  $field
      * @param  array<string, array<int, mixed>>  $rules
      */
-    protected function appendFieldRules(array $field, array &$rules): void
+    protected function appendFieldRules(array $field, array &$rules, ?array $data = null): void
     {
         if (ContentBlockCatalog::isSection($field)) {
             foreach ($field['children'] ?? [] as $child) {
                 if (is_array($child)) {
-                    $this->appendFieldRules($child, $rules);
+                    $this->appendFieldRules($child, $rules, $data);
                 }
             }
 
@@ -52,6 +53,10 @@ class ValidationBuilder
         }
 
         if (ContentBlockCatalog::isContent($field) || blank($field['name'] ?? null)) {
+            return;
+        }
+
+        if ($data !== null && ! FieldVisibility::isVisible($field, $data)) {
             return;
         }
 

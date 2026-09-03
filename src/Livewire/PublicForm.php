@@ -21,6 +21,7 @@ use Spiggle\FormBuilder\Support\AuthorizesFormBuilder;
 use Spiggle\FormBuilder\Support\ContainerTypes;
 use Spiggle\FormBuilder\Support\FeatureCatalog;
 use Spiggle\FormBuilder\Support\FieldCatalog;
+use Spiggle\FormBuilder\Support\FieldVisibility;
 use Spiggle\FormBuilder\Support\PageChrome;
 use Spiggle\FormBuilder\Support\PathResolver;
 use Spiggle\FormBuilder\Support\SchemaNormalizer;
@@ -166,7 +167,7 @@ class PublicForm extends Component implements HasActions, HasSchemas
         }
 
         $this->normalizeIncoming();
-        $rules = app(ValidationBuilder::class)->rules($this->form());
+        $rules = app(ValidationBuilder::class)->rules($this->form(), null, $this->data);
         if (! isset($rules[$property])) {
             return;
         }
@@ -373,7 +374,7 @@ class PublicForm extends Component implements HasActions, HasSchemas
             }
 
             $this->validate(
-                app(ValidationBuilder::class)->rules($form, $containerIndex),
+                app(ValidationBuilder::class)->rules($form, $containerIndex, $this->data),
                 [],
                 app(ValidationBuilder::class)->attributes($form, $containerIndex)
             );
@@ -450,6 +451,28 @@ class PublicForm extends Component implements HasActions, HasSchemas
                 if (is_string($raw)) {
                     $this->data[$name] = array_values(array_filter(array_map('trim', explode(',', $raw))));
                 }
+            }
+        }
+
+        $this->stripHiddenFieldValues();
+    }
+
+    protected function stripHiddenFieldValues(): void
+    {
+        foreach ($this->form()->fields() as $field) {
+            $name = $field['name'] ?? null;
+            if (! $name || FieldVisibility::isVisible($field, $this->data)) {
+                continue;
+            }
+
+            $type = (string) ($field['type'] ?? 'text');
+
+            if (FieldCatalog::isBoolean($type)) {
+                $this->data[$name] = false;
+            } elseif (FieldCatalog::storesArray($type)) {
+                $this->data[$name] = [];
+            } else {
+                $this->data[$name] = null;
             }
         }
     }

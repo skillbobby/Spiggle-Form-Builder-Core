@@ -21,6 +21,7 @@ use Filament\Schemas\Components\Wizard\Step;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Support\ContainerTypes;
 use Spiggle\FormBuilder\Support\ContentBlockCatalog;
+use Spiggle\FormBuilder\Support\FieldVisibility;
 
 class FormRenderer
 {
@@ -158,10 +159,13 @@ class FormRenderer
         $span = max(1, min(12, (int) ($field['column_span'] ?? 12)));
         $component->columnSpan(['default' => 12, 'md' => $span]);
 
-        $visibleField = data_get($field, 'meta.visible_when_field');
-        $expected = data_get($field, 'meta.visible_when_value');
+        $visibleField = FieldVisibility::controllingFieldName($field);
         if ($visibleField) {
-            $component->visible(fn (callable $get) => (string) $get($stateKey.'.'.$visibleField) === (string) $expected);
+            $expected = FieldVisibility::expectedValue($field);
+            $component->visible(fn (callable $get) => FieldVisibility::valuesMatch(
+                $get($stateKey.'.'.$visibleField),
+                $expected
+            ));
         }
 
         $rules = $field['validation_rules'] ?? [];

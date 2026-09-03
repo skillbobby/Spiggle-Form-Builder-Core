@@ -128,7 +128,7 @@
           </tbody>
         </table>
       </div>
-      <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code> / <code>visible_when_value</code> in the Filament preview; public Blade does not hide fields client-side in v1 (still submitted if present in DOM — prefer wizard steps if you need gated questions).</p>
+      <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code> / <code>visible_when_value</code> in the designer and on public forms — dependent fields hide when the controlling value does not match (exact string compare; booleans, tags, and multi-select arrays are normalized). Hidden fields are omitted from the DOM and skip required validation.</p>
       <p>Option colors imported from Dynamic Fields are stored on schema options; the public renderer does not paint tag badges (admin submission view shows labels).</p>
 
       <h2 id="public">Public forms</h2>
@@ -196,7 +196,7 @@
         <a href="workflows.html">← Workflows</a>
       </div>
     </main>
-    <p class="footer">Spiggle Form Builder <small class="footer-update">v2.0.7</small> · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
+    <p class="footer">Spiggle Form Builder <small class="footer-update">v2.0.8</small> · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
   </div>
 </body>
 </html>

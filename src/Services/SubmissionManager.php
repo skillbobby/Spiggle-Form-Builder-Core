@@ -9,6 +9,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Spiggle\FormBuilder\Models\Form;
 use Spiggle\FormBuilder\Models\FormSubmission;
 use Spiggle\FormBuilder\Support\FieldCatalog;
+use Spiggle\FormBuilder\Support\FieldVisibility;
 use Spiggle\FormBuilder\Support\Sanitizer;
 
 class SubmissionManager
@@ -23,7 +24,7 @@ class SubmissionManager
 
         foreach ($form->fields() as $field) {
             $name = $field['name'] ?? null;
-            if (! $name) {
+            if (! $name || ! FieldVisibility::isVisible($field, $data)) {
                 continue;
             }
 
