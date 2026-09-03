@@ -167,9 +167,11 @@ class SchemaNormalizer
                 is_array($item['validation_rules'] ?? null) ? $item['validation_rules'] : []
             )),
             'options' => $options,
-            'meta' => InputMaskCatalog::normalizeFieldMeta(
-                is_array($item['meta'] ?? null) ? $item['meta'] : [],
-                fieldType: (string) ($item['type'] ?? 'text'),
+            'meta' => FieldVisibility::normalizeMeta(
+                InputMaskCatalog::normalizeFieldMeta(
+                    is_array($item['meta'] ?? null) ? $item['meta'] : [],
+                    fieldType: (string) ($item['type'] ?? 'text'),
+                )
             ),
         ];
     }
