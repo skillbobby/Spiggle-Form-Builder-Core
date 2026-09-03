@@ -11,7 +11,10 @@
     $errorKey = 'data.'.$name;
     $id = 'fb-'.$formModel->id.'-'.$name;
     $described = $id.'-hint';
+    $isVisible = \Spiggle\FormBuilder\Support\FieldVisibility::isVisible($field, $this->data ?? []);
 @endphp
+
+@if ($isVisible)
 
 @php $isToggle = in_array($type, ['boolean', 'toggle'], true); @endphp
 @php
@@ -108,3 +111,4 @@
         <p class="fb-error" role="alert">{{ $message }}</p>
     @enderror
 </div>
+@endif
