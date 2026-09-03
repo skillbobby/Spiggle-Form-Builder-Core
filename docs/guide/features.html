@@ -128,7 +128,7 @@
           </tbody>
         </table>
       </div>
-      <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code> / <code>visible_when_value</code> in the designer and on public forms — dependent fields hide when the controlling value does not match (exact string compare; booleans, tags, and multi-select arrays are normalized). Hidden fields are omitted from the DOM and skip required validation.</p>
+      <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code>, <code>visible_when_operator</code> (<code>empty</code> / <code>equals</code> / <code>not_equals</code>; default <code>equals</code>), and <code>visible_when_value</code> (unused for <code>empty</code>) in the designer and on public forms. Equals/not-equal compare normalized scalars (booleans, tags, multi-select arrays). Empty treats null, blank strings, empty arrays, and false toggles as blank. Hidden fields are omitted from the DOM and skip required validation.</p>
       <p>Option colors imported from Dynamic Fields are stored on schema options; the public renderer does not paint tag badges (admin submission view shows labels).</p>
 
       <h2 id="public">Public forms</h2>
@@ -196,7 +196,7 @@
         <a href="workflows.html">← Workflows</a>
       </div>
     </main>
-    <p class="footer">Spiggle Form Builder <small class="footer-update">v2.0.8</small> · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
+    <p class="footer">Spiggle Form Builder <small class="footer-update">v2.0.9</small> · <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core">GitHub</a></p>
   </div>
 </body>
 </html>

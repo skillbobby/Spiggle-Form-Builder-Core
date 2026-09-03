@@ -161,10 +161,9 @@ class FormRenderer
 
         $visibleField = FieldVisibility::controllingFieldName($field);
         if ($visibleField) {
-            $expected = FieldVisibility::expectedValue($field);
-            $component->visible(fn (callable $get) => FieldVisibility::valuesMatch(
+            $component->visible(fn (callable $get) => FieldVisibility::matchesCondition(
                 $get($stateKey.'.'.$visibleField),
-                $expected
+                $field
             ));
         }
 

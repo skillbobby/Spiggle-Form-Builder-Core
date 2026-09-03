@@ -363,12 +363,27 @@
             </select>
         </label>
         @if ($this->selectedMeta('visible_when_field'))
+            @php
+                $visibleWhenOperator = \Spiggle\FormBuilder\Support\FieldVisibility::normalizeOperator(
+                    $this->selectedMeta('visible_when_operator')
+                );
+            @endphp
             <label class="fd-field">
-                <span>Equals value</span>
-                <input type="text" class="fd-input"
-                    value="{{ $this->selectedMeta('visible_when_value') }}"
-                    wire:change="updateSelected('meta.visible_when_value', $event.target.value)">
+                <span>Operator</span>
+                <select class="fd-input" wire:change="updateSelected('meta.visible_when_operator', $event.target.value)">
+                    <option value="empty" @selected($visibleWhenOperator === 'empty')>Is empty</option>
+                    <option value="equals" @selected($visibleWhenOperator === 'equals')>Equals</option>
+                    <option value="not_equals" @selected($visibleWhenOperator === 'not_equals')>Not equal</option>
+                </select>
             </label>
+            @if (in_array($visibleWhenOperator, ['equals', 'not_equals'], true))
+                <label class="fd-field">
+                    <span>Value</span>
+                    <input type="text" class="fd-input"
+                        value="{{ $this->selectedMeta('visible_when_value') }}"
+                        wire:change="updateSelected('meta.visible_when_value', $event.target.value)">
+                </label>
+            @endif
         @endif
     @endif
 
