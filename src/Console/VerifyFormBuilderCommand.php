@@ -44,11 +44,22 @@ class VerifyFormBuilderCommand extends Command
         $formSource = file_get_contents(
             dirname(__DIR__, 2).'/src/Filament/Resources/Forms/Schemas/FormForm.php'
         ) ?: '';
-        $failures += $this->assertTrue(str_contains($formSource, 'itemLabel'), 'builder repeaters set itemLabel');
-        $failures += $this->assertTrue(str_contains($formSource, 'collapsed()'), 'builder repeaters are collapsed');
-        $failures += $this->assertTrue(str_contains($formSource, 'collapsible()'), 'builder repeaters are collapsible');
-        $failures += $this->assertTrue(str_contains($formSource, 'reorderable()'), 'builder repeaters are reorderable');
+        $designerSource = file_get_contents(
+            dirname(__DIR__, 2).'/src/Filament/Livewire/FormDesigner.php'
+        ) ?: '';
+        $editView = file_get_contents(
+            dirname(__DIR__, 2).'/resources/views/filament/resources/forms/pages/edit-form.blade.php'
+        ) ?: '';
+        $chooseStart = file_get_contents(
+            dirname(__DIR__, 2).'/src/Filament/Resources/Forms/Pages/ChooseFormStart.php'
+        ) ?: '';
+        $failures += $this->assertTrue(str_contains($designerSource, 'class FormDesigner'), 'visual form designer component exists');
+        $failures += $this->assertTrue(str_contains($designerSource, 'function save('), 'designer persists forms');
+        $failures += $this->assertTrue(str_contains($editView, 'FormDesigner::class'), 'edit form loads visual designer');
+        $failures += $this->assertTrue(str_contains($chooseStart, 'applyTemplate'), 'create wizard applies templates');
+        $failures += $this->assertTrue(! str_contains($formSource, 'builderSchema'), 'legacy repeater builder removed');
         $failures += $this->assertTrue(str_contains($formSource, "['default' => 1, 'md' => 2]"), 'settings section is responsive');
+        $failures += $this->assertTrue(str_contains($formSource, 'container_type'), 'settings include layout selector');
 
         $publicCss = file_get_contents(
             dirname(__DIR__, 2).'/resources/views/layouts/public.blade.php'
