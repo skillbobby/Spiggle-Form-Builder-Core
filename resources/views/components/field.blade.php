@@ -31,20 +31,24 @@
         <select id="{{ $id }}" class="fb-select" wire:model.blur="data.{{ $name }}" @required($required) aria-invalid="{{ $errors->has($errorKey) ? 'true' : 'false' }}" aria-describedby="{{ $described }}">
             <option value="">{{ $placeholder ?: 'Choose…' }}</option>
             @foreach ($options as $option)
-                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                @php $optionColor = \Spiggle\FormBuilder\Support\OptionColor::css($option['color'] ?? null); @endphp
+                <option value="{{ $option['value'] }}" @if ($optionColor) style="color: {{ $optionColor }}" data-option-color="{{ $optionColor }}" @endif>{{ $option['label'] }}</option>
             @endforeach
         </select>
     @elseif ($type === 'multi_select')
         <select id="{{ $id }}" class="fb-select" wire:model="data.{{ $name }}" multiple @required($required) aria-describedby="{{ $described }}">
             @foreach ($options as $option)
-                <option value="{{ $option['value'] }}">{{ $option['label'] }}</option>
+                @php $optionColor = \Spiggle\FormBuilder\Support\OptionColor::css($option['color'] ?? null); @endphp
+                <option value="{{ $option['value'] }}" @if ($optionColor) style="color: {{ $optionColor }}" data-option-color="{{ $optionColor }}" @endif>{{ $option['label'] }}</option>
             @endforeach
         </select>
     @elseif ($type === 'radio')
         <div class="fb-radio" role="radiogroup" aria-labelledby="{{ $id }}">
             @foreach ($options as $option)
-                <label>
+                @php $optionColor = \Spiggle\FormBuilder\Support\OptionColor::css($option['color'] ?? null); @endphp
+                <label @if ($optionColor) class="is-colored" style="--fb-option-color: {{ $optionColor }}" data-option-color="{{ $optionColor }}" @endif>
                     <input type="radio" wire:model="data.{{ $name }}" value="{{ $option['value'] }}" @required($required)>
+                    @if ($optionColor)<span class="fb-option-swatch" aria-hidden="true"></span>@endif
                     {{ $option['label'] }}
                 </label>
             @endforeach
@@ -52,7 +56,8 @@
     @elseif ($type === 'tags')
         <div class="fb-tags" id="{{ $id }}-wrap">
             @foreach ($this->data[$name] ?? [] as $i => $tag)
-                <span class="fb-tag">
+                @php $tagColor = \Spiggle\FormBuilder\Support\OptionColor::forValue($options, (string) $tag); @endphp
+                <span @class(['fb-tag', 'is-colored' => (bool) $tagColor]) @if ($tagColor) style="--fb-option-color: {{ $tagColor }}" data-option-color="{{ $tagColor }}" @endif>
                     {{ $tag }}
                     <button type="button" class="fb-tag-x" wire:click="removeTag('{{ $name }}', {{ $i }})" aria-label="Remove {{ $tag }}">&times;</button>
                 </span>

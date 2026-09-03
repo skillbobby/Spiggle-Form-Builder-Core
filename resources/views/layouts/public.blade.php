@@ -131,9 +131,15 @@
             background: #fffbeb; border: 1px solid #fde68a; border-radius: 999px;
             padding: .15rem .55rem .15rem .7rem; font-size: .8rem; font-weight: 600;
         }
+        .fb-tag.is-colored {
+            background: color-mix(in srgb, var(--fb-option-color) 18%, #fff);
+            border-color: color-mix(in srgb, var(--fb-option-color) 45%, #fff);
+            color: var(--fb-option-color);
+        }
         .fb-tag-x {
             border: 0; background: transparent; cursor: pointer; font-size: 1rem; line-height: 1; color: #92400e;
         }
+        .fb-tag.is-colored .fb-tag-x { color: inherit; }
         .fb-tag-input {
             flex: 1 1 8rem; min-width: 8rem; border: 0; outline: none; font: inherit; padding: .35rem .25rem;
         }
@@ -237,6 +243,11 @@
         .fb-radio label, .fb-check label {
             font-weight: 400; display: flex; gap: .55rem; align-items: flex-start;
             cursor: pointer; line-height: 1.35;
+        }
+        .fb-radio label.is-colored { color: var(--fb-option-color); font-weight: 600; }
+        .fb-option-swatch {
+            width: .7rem; height: .7rem; border-radius: 999px; flex-shrink: 0;
+            background: var(--fb-option-color); margin-top: .25rem;
         }
         .fb-radio input, .fb-check input {
             margin-top: .2rem; accent-color: var(--fb-primary); width: 1rem; height: 1rem; flex-shrink: 0;

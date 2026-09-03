@@ -129,13 +129,13 @@
         </table>
       </div>
       <p>Extra Laravel rules (TagsInput on the field) are merged uniquely. Conditional visibility uses <code>meta.visible_when_field</code>, <code>visible_when_operator</code> (<code>empty</code> / <code>equals</code> / <code>not_equals</code>; default <code>equals</code>), and <code>visible_when_value</code> (unused for <code>empty</code>) in the designer and on public forms. Equals/not-equal compare normalized scalars (booleans, tags, multi-select arrays). Empty treats null, blank strings, empty arrays, and false toggles as blank. Hidden fields are omitted from the DOM and skip required validation.</p>
-      <p>Option colors imported from Dynamic Fields are stored on schema options; the public renderer does not paint tag badges (admin submission view shows labels).</p>
+      <p>Option colors imported from Dynamic Fields are stored on schema options and painted on public tag badges, radio swatches, and select options (hex or named theme colors).</p>
 
       <h2 id="public">Public forms</h2>
       <ul>
         <li>Self-contained CSS in the public layout (12-column grid, mobile stack).</li>
         <li>Progress bar + “Step N of M” for wizard and pages.</li>
-        <li>Tab pills call <code>goToStep</code> (no step validation when switching tabs).</li>
+        <li>Tab pills call <code>goToStep</code>; jumping forward validates the current tab first (same as Next). Backward jumps stay free.</li>
         <li>Only published+active forms; match on <code>base_path</code> or <code>slug</code>.</li>
         <li>Logged-in users are stored on <code>user_id</code> when Auth is present.</li>
       </ul>

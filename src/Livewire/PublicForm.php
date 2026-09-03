@@ -204,8 +204,19 @@ class PublicForm extends Component implements HasActions, HasSchemas
     {
         $form = $this->form();
         $max = max(0, count($form->schema ?? []) - 1);
-        $this->step = max(0, min($step, $max));
+        $target = max(0, min($step, $max));
+
+        if ($target === $this->step) {
+            return;
+        }
+
+        if ($target > $this->step) {
+            $this->validateCurrentSection();
+        }
+
+        $this->step = $target;
         $this->ensureSectionOpen($this->step);
+        $this->saveDraft($form);
     }
 
     public function toggleSection(int $index): void
