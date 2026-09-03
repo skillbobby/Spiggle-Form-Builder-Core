@@ -13,7 +13,7 @@ Create forms in the admin panel, share a public URL, and collect submissions wit
 
 | | |
 |---|---|
-| **Package** | `spiggle/form-builder-core` v2.1.0 |
+| **Package** | `spiggle/form-builder-core` v2.0.10 |
 | **License** | MIT (Community Edition) |
 | **GitHub** | [skillbobby/Spiggle-Form-Builder-Core](https://github.com/skillbobby/Spiggle-Form-Builder-Core) |
 | **Docs** | [Product site & guide](https://skillbobby.github.io/Spiggle-Form-Builder-Core/) |

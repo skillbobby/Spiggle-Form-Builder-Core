@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Spiggle\FormBuilder\Database\Factories\FormSubmissionFactory;
 use Spiggle\FormBuilder\Events\FormSubmitted;
 use Spiggle\FormBuilder\Support\FieldCatalog;
+use Spiggle\FormBuilder\Support\OptionColor;
 
 class FormSubmission extends Model
 {
@@ -163,20 +164,32 @@ class FormSubmission extends Model
         }
 
         if (FieldCatalog::requiresOptions($type)) {
-            $map = collect($field['options'] ?? [])->pluck('label', 'value')->all();
+            /** @var list<array<string, mixed>> $options */
+            $options = is_array($field['options'] ?? null) ? $field['options'] : [];
+            $map = collect($options)->pluck('label', 'value')->all();
             $items = is_array($value) ? $value : [$value];
-            $labels = collect($items)->map(fn ($v) => (string) ($map[(string) $v] ?? $v))->all();
 
-            if (in_array($type, ['tags', 'multi_select'], true) || is_array($value)) {
+            if (in_array($type, ['tags', 'multi_select', 'select', 'radio'], true) || is_array($value)) {
                 $badges = '';
-                foreach ($labels as $item) {
-                    $badges .= '<span style="display:inline-block;margin:0 6px 6px 0;padding:3px 10px;border-radius:999px;background:color-mix(in srgb, currentColor 10%, transparent);font-size:12px;font-weight:600">'.e($item).'</span>';
+                foreach ($items as $raw) {
+                    $rawStr = (string) $raw;
+                    $itemLabel = (string) ($map[$rawStr] ?? $raw);
+                    $color = OptionColor::forValue($options, $rawStr);
+                    $style = 'display:inline-block;margin:0 6px 6px 0;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600';
+                    if ($color) {
+                        $style .= ';background:color-mix(in srgb, '.$color.' 18%, #fff);border:1px solid color-mix(in srgb, '.$color.' 45%, #fff);color:'.$color;
+                    } else {
+                        $style .= ';background:color-mix(in srgb, currentColor 10%, transparent)';
+                    }
+                    $badges .= '<span style="'.$style.'">'.e($itemLabel).'</span>';
                 }
 
                 return $badges !== '' ? $badges : '<div style="opacity:.45">—</div>';
             }
 
-            return '<div>'.e((string) ($labels[0] ?? '')).'</div>';
+            $first = (string) ($items[0] ?? '');
+
+            return '<div>'.e((string) ($map[$first] ?? $first)).'</div>';
         }
 
         if (FieldCatalog::isFile($type) && is_array($value)) {
