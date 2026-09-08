@@ -92,20 +92,20 @@ $panel
       <p><code>PathResolver</code> rejects reserved segments, existing form slugs/paths, and existing Laravel routes, then appends <code>-f{4-char-hash}</code> (example style: <code>contact-us-f8a1</code>).</p>
 
       <h2 id="shield">Permissions / Shield</h2>
-      <p><code>AuthorizesFormBuilder::check($key)</code> uses the same fallback as Dynamic Fields: permission or <code>super_admin</code>; if the permission row does not exist yet, authenticated panel users keep access.</p>
+      <p><code>AuthorizesFormBuilder::check($key)</code> uses the same fallback as Dynamic Fields: permission or <code>super_admin</code>; if the permission row does not exist yet, authenticated panel users keep access. Package <code>FormPolicy</code> / <code>FormSubmissionPolicy</code> use these same keys — Filament Create/Edit/Delete buttons authorize through the Gate/policy path, not only Resource <code>can*()</code> helpers.</p>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Config key</th><th>Default permission</th><th>Used for</th></tr></thead>
           <tbody>
-            <tr><td><code>manage_forms</code></td><td><code>manage_forms</code></td><td>Forms resource</td></tr>
+            <tr><td><code>manage_forms</code></td><td><code>manage_forms</code></td><td>Forms resource (list, create, edit, delete)</td></tr>
             <tr><td><code>view_submissions</code></td><td><code>view_form_submissions</code></td><td>Submissions resource (or manage_forms)</td></tr>
             <tr><td><code>export_submissions</code></td><td><code>export_form_submissions</code></td><td>Export actions</td></tr>
-            <tr><td><code>manage_submissions</code></td><td><code>manage_form_submissions</code></td><td>Reserved for host policies</td></tr>
+            <tr><td><code>manage_submissions</code></td><td><code>manage_form_submissions</code></td><td>Submission write/delete (or manage_forms)</td></tr>
           </tbody>
         </table>
       </div>
 <pre><code>php artisan shield:generate --all</code></pre>
-      <p>Then assign those permissions to the roles that should manage forms vs only view/export submissions.</p>
+      <p>Register the four names above as <strong>custom permissions</strong> in Shield (see starter <code>config/filament-shield.php</code>), then assign them to roles. Do not rely on Shield resource abilities like <code>Create:Form</code> — the package policy ignores those.</p>
 
       <h2 id="commands">Artisan commands</h2>
       <div class="table-wrap">

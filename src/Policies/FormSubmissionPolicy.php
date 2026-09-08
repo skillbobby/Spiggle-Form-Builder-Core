@@ -4,72 +4,73 @@ declare(strict_types=1);
 
 namespace Spiggle\FormBuilder\Policies;
 
-use Illuminate\Foundation\Auth\User as AuthUser;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Spiggle\FormBuilder\Models\FormSubmission;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use Spiggle\FormBuilder\Support\AuthorizesFormBuilder;
 
+/**
+ * Same Filament Gate path as {@see FormPolicy}: action visibility uses this
+ * policy, not Resource::can*() alone. Align with form-builder.permissions.*.
+ */
 class FormSubmissionPolicy
 {
-    use HandlesAuthorization;
-    
-    public function viewAny(AuthUser $authUser): bool
+    public function viewAny(?Authenticatable $user): bool
     {
-        return $authUser->can('ViewAny:FormSubmission');
+        return AuthorizesFormBuilder::userCanViewSubmissions($user);
     }
 
-    public function view(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function view(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('View:FormSubmission');
+        return AuthorizesFormBuilder::userCanViewSubmissions($user);
     }
 
-    public function create(AuthUser $authUser): bool
+    public function create(?Authenticatable $user): bool
     {
-        return $authUser->can('Create:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function update(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function update(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('Update:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function delete(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function delete(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('Delete:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function deleteAny(AuthUser $authUser): bool
+    public function deleteAny(?Authenticatable $user): bool
     {
-        return $authUser->can('DeleteAny:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function restore(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function restore(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('Restore:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function forceDelete(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function forceDelete(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('ForceDelete:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function forceDeleteAny(AuthUser $authUser): bool
+    public function forceDeleteAny(?Authenticatable $user): bool
     {
-        return $authUser->can('ForceDeleteAny:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function restoreAny(AuthUser $authUser): bool
+    public function restoreAny(?Authenticatable $user): bool
     {
-        return $authUser->can('RestoreAny:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function replicate(AuthUser $authUser, FormSubmission $formSubmission): bool
+    public function replicate(?Authenticatable $user, FormSubmission $formSubmission): bool
     {
-        return $authUser->can('Replicate:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
 
-    public function reorder(AuthUser $authUser): bool
+    public function reorder(?Authenticatable $user): bool
     {
-        return $authUser->can('Reorder:FormSubmission');
+        return AuthorizesFormBuilder::userCanManageSubmissions($user);
     }
-
 }
