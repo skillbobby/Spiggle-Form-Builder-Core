@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spiggle Form Builder — Public Forms for Laravel & Filament</title>
+  <meta name="description" content="Spiggle Form Builder Core is the open-source (MIT) form builder for Laravel + Filament. Design dynamic forms in the admin panel, publish a public URL, and collect validated submissions — no custom frontend." />
+  <meta name="theme-color" content="#060a14" />
+  <meta property="og:title" content="Spiggle Form Builder — Public Forms for Laravel & Filament" />
+  <meta property="og:description" content="Build dynamic forms in Filament. Publish them anywhere. Validation, sanitization, submission inbox & CSV export — MIT licensed." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%236366f1'/%3E%3Cstop offset='1' stop-color='%2306b6d4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='1' y='1' width='30' height='30' rx='8' fill='url(%23g)'/%3E%3Cpath d='M8 10h16M8 15h10M8 20h13' stroke='%23060a14' stroke-width='2.6' stroke-linecap='round'/%3E%3C/svg%3E" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+            display: ['"Space Grotesk"', "Inter", "ui-sans-serif", "sans-serif"],
+            mono: ['"JetBrains Mono"', "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+          },
+          animation: {
+            "float-slow": "float 9s ease-in-out infinite",
+            "float-slower": "float 14s ease-in-out infinite",
+            "pulse-dot": "pulseDot 2.2s ease-in-out infinite",
+          },
+          keyframes: {
+            float: { "0%, 100%": { transform: "translateY(0)" }, "50%": { transform: "translateY(-12px)" } },
+            pulseDot: { "0%, 100%": { opacity: "1" }, "50%": { opacity: ".3" } },
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background-color: #060a14; color: #e2e8f0; -webkit-font-smoothing: antialiased; }
+    ::selection { background: rgba(99, 102, 241, .35); color: #fff; }
+    ::-webkit-scrollbar { width: 10px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0f1e; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+    .bg-grid {
+      background-image: linear-gradient(rgba(148,163,184,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.06) 1px, transparent 1px);
+      background-size: 54px 54px;
+      -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 35%, transparent 78%);
+      mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, #000 35%, transparent 78%);
+    }
+    .bg-grid-fade {
+      background-image: linear-gradient(rgba(148,163,184,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.05) 1px, transparent 1px);
+      background-size: 54px 54px;
+      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 20%, transparent 75%);
+      mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, #000 20%, transparent 75%);
+    }
+    .text-gradient {
+      background: linear-gradient(120deg, #a5b4fc 0%, #c4b5fd 45%, #67e8f9 100%);
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent; color: transparent;
+    }
+    .btn-glow { box-shadow: 0 0 0 1px rgba(129,140,248,.25), 0 8px 28px -8px rgba(99,102,241,.55), 0 2px 10px -2px rgba(34,211,238,.25); }
+    .glow-ring { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 0 1px rgba(148,163,184,.08), 0 24px 60px -24px rgba(79,70,229,.45); }
+
+    /* Code tokens */
+    .tok-cmd { color: #a5b4fc; font-weight: 600; } .tok-flag { color: #67e8f9; }
+    .tok-str { color: #fcd34d; } .tok-com { color: #64748b; font-style: italic; }
+    .tok-key { color: #c4b5fd; font-weight: 500; } .tok-var { color: #f0abfc; }
+    .tok-fn { color: #34d399; } .tok-cls { color: #7dd3fc; } .tok-prompt { color: #34d399; font-weight: 600; }
+
+    /* Line numbers */
+    .linenums { counter-reset: line; }
+    .code-line { display: block; counter-increment: line; position: relative; padding-left: 3.6rem; white-space: pre; min-height: 1.5rem; }
+    .code-line::before {
+      content: counter(line); position: absolute; left: 0; top: 0; width: 2.6rem;
+      text-align: right; padding-right: 1rem; color: #334155; user-select: none;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .reveal.in-view { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+      .animate-float-slow, .animate-float-slower { animation: none !important; }
+    }
+  </style>
+</head>
+
+<body class="font-sans antialiased overflow-x-hidden">
+<!-- ============ NAVIGATION ============ -->
+  <header id="siteHeader" class="fixed inset-x-0 top-0 z-50 transition-all duration-300">
+    <nav aria-label="Main navigation" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+
+        <a href="#top" class="group flex items-center gap-2.5" aria-label="Spiggle Form Builder home">
+          <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg shadow-indigo-500/30 transition-transform duration-300 group-hover:scale-105">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="#060a14" stroke-width="2.4" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h11"/></svg>
+          </span>
+          <span class="font-display text-lg font-semibold tracking-tight text-white">Spiggle <span class="font-medium text-slate-400">Form Builder</span></span>
+        </a>
+
+        <div class="hidden items-center gap-1 lg:flex">
+          <a href="#features" class="nav-link rounded-lg px-3.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Features</a>
+          <a href="#ecosystem" class="nav-link rounded-lg px-3.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Ecosystem</a>
+          <a href="#code" class="nav-link rounded-lg px-3.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Code</a>
+          <a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/" target="_blank" rel="noopener" class="rounded-lg px-3.5 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5 hover:text-white">Documentation</a>
+        </div>
+
+        <div class="hidden items-center gap-3 lg:flex">
+          <span class="inline-flex items-center gap-1.5 rounded-full border border-amber-400/20 bg-amber-400/10 px-3 py-1.5 text-xs font-semibold text-amber-300">
+            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="currentColor"><path d="M12 2l2.9 6.26L21.5 9.3l-4.9 4.53L17.9 21 12 17.7 6.1 21l1.3-7.17L2.5 9.3l6.6-1.04L12 2z"/></svg>
+            <span id="ghStarsNav">7</span>
+          </span>
+          <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener"
+             class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white btn-glow transition hover:brightness-110 active:scale-[.98]">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.07.79 2.15v3.19c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+            Star on GitHub
+          </a>
+        </div>
+
+        <button id="menuToggle" type="button" aria-label="Toggle menu" aria-expanded="false" aria-controls="mobileMenu"
+                class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-slate-200 transition hover:bg-white/10 lg:hidden">
+          <svg id="iconOpen" viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+          <svg id="iconClose" viewBox="0 0 24 24" class="hidden h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+      </div>
+
+      <div id="mobileMenu" class="hidden lg:hidden">
+        <div class="mb-3 grid gap-1 rounded-2xl border border-white/10 bg-slate-950/90 p-3 shadow-2xl backdrop-blur-xl">
+          <a href="#features" class="mobile-link rounded-xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white">Features</a>
+          <a href="#ecosystem" class="mobile-link rounded-xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white">Ecosystem</a>
+          <a href="#code" class="mobile-link rounded-xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white">Code</a>
+          <a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/" target="_blank" rel="noopener" class="mobile-link rounded-xl px-4 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/5 hover:text-white">Documentation</a>
+          <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener"
+             class="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-3 text-sm font-semibold text-white btn-glow">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.07.79 2.15v3.19c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+            Star on GitHub
+          </a>
+        </div>
+      </div>
+    </nav>
+  </header>
+<!-- ============ HERO ============ -->
+  <section id="top" class="relative overflow-hidden pt-36 pb-16 sm:pt-44 sm:pb-24">
+    <div class="pointer-events-none absolute inset-0 bg-grid" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -top-40 left-1/2 h-[560px] w-[880px] -translate-x-1/2 rounded-full bg-indigo-600/20 blur-[140px]" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute top-40 -left-40 h-96 w-96 rounded-full bg-cyan-500/10 blur-[120px]" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute top-20 -right-40 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="mx-auto max-w-3xl text-center">
+        <div class="reveal in-view">
+          <span class="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-slate-300 backdrop-blur">
+            <span class="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse-dot"></span>
+            Community Edition · MIT License · v2.0.11
+          </span>
+        </div>
+
+        <h1 class="reveal in-view mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-6xl lg:text-7xl" style="transition-delay:.08s">
+          Build dynamic forms in Filament.
+          <span class="text-gradient">Publish them anywhere.</span>
+        </h1>
+
+        <p class="reveal in-view mx-auto mt-6 max-w-2xl text-base leading-relaxed text-slate-400 sm:text-lg" style="transition-delay:.16s">
+          Spiggle Form Builder is a UI-driven core for <span class="text-slate-200">Laravel &amp; Filament</span> — compose
+          sections and fields in the admin panel, hit publish, and collect validated submissions on a public URL.
+          No custom frontend for every intake form.
+        </p>
+
+        <div class="reveal in-view mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row" style="transition-delay:.24s">
+          <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener"
+             class="group inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3.5 text-sm font-semibold text-white btn-glow transition hover:brightness-110 active:scale-[.98] sm:w-auto">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 transition-transform group-hover:-translate-y-0.5" fill="currentColor"><path d="M12 2l2.9 6.26L21.5 9.3l-4.9 4.53L17.9 21 12 17.7 6.1 21l1.3-7.17L2.5 9.3l6.6-1.04L12 2z"/></svg>
+            Star on GitHub
+            <span class="inline-flex items-center gap-1 rounded-full bg-white/15 px-2 py-0.5 text-xs font-bold tabular-nums">
+              <span id="ghStarsHero">7</span>
+            </span>
+          </a>
+          <a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/" target="_blank" rel="noopener"
+             class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-slate-100 backdrop-blur transition hover:border-white/20 hover:bg-white/10 active:scale-[.98] sm:w-auto">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/></svg>
+            Explore Documentation
+          </a>
+        </div>
+
+        <p class="reveal in-view mt-5 text-xs font-medium tracking-wide text-slate-500" style="transition-delay:.3s">
+          Free forever · No credit card · Composer install in one line
+        </p>
+
+        <div class="reveal in-view mt-8 flex flex-wrap items-center justify-center gap-2" style="transition-delay:.36s">
+          <span class="chip inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span> PHP 8.3+
+          </span>
+          <span class="chip inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span> Laravel 13
+          </span>
+          <span class="chip inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span> Filament 5
+          </span>
+          <span class="chip inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-cyan-400"></span> Livewire
+          </span>
+          <span class="chip inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300">
+            <span class="h-1.5 w-1.5 rounded-full bg-violet-400"></span> Blade
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- ---- Hero visual: Filament form builder mockup ---- -->
+    <div class="relative mx-auto mt-16 max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div class="absolute -inset-x-8 -top-10 -bottom-16 rounded-[32px] bg-gradient-to-b from-indigo-500/12 via-violet-500/5 to-transparent blur-2xl" aria-hidden="true"></div>
+
+      <div class="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0b1224] shadow-2xl glow-ring">
+        <!-- Browser chrome -->
+        <div class="flex h-11 items-center gap-3 border-b border-white/5 bg-[#0d1428] px-4">
+          <div class="flex gap-1.5">
+            <span class="h-3 w-3 rounded-full bg-rose-500/80"></span>
+            <span class="h-3 w-3 rounded-full bg-amber-400/80"></span>
+            <span class="h-3 w-3 rounded-full bg-emerald-500/80"></span>
+          </div>
+          <div class="mx-auto flex min-w-0 flex-1 items-center justify-center sm:flex-none">
+            <div class="flex items-center gap-2 rounded-lg border border-white/5 bg-black/40 px-3 py-1.5 font-mono text-[11px] text-slate-400 sm:w-72 sm:justify-center">
+              <svg viewBox="0 0 24 24" class="h-3 w-3 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+              <span class="truncate">/forms/contact-us</span>
+            </div>
+          </div>
+          <span class="hidden items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold tracking-wide text-emerald-300 sm:inline-flex">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse-dot"></span>LIVE
+          </span>
+        </div>
+
+        <!-- App body -->
+        <div class="grid md:grid-cols-[216px_1fr] xl:grid-cols-[216px_1fr_260px]">
+
+          <!-- Sidebar -->
+          <aside class="hidden border-r border-white/5 bg-[#0c1122] p-4 md:block">
+            <div class="flex items-center gap-2 px-2 pb-4">
+              <span class="grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br from-indigo-500 to-cyan-500">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="#060a14" stroke-width="2.4" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h11"/></svg>
+              </span>
+              <span class="text-sm font-semibold text-white">Spiggle Admin</span>
+            </div>
+            <nav class="space-y-1">
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-slate-500">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+                Dashboard
+              </span>
+              <span class="flex items-center gap-2.5 rounded-lg border border-indigo-400/25 bg-indigo-500/15 px-3 py-2 text-[13px] font-semibold text-indigo-300">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6"/></svg>
+                Forms
+              </span>
+              <span class="flex items-center justify-between rounded-lg px-3 py-2 text-[13px] font-medium text-slate-400">
+                <span class="flex items-center gap-2.5">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z"/></svg>
+                  Submissions
+                </span>
+                <span class="rounded-full bg-indigo-500/25 px-1.5 py-0.5 text-[10px] font-bold text-indigo-300">12</span>
+              </span>
+              <span class="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-slate-500">
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+                Dynamic Fields
+              </span>
+            </nav>
+            <div class="mt-6 rounded-xl border border-white/5 bg-white/[.03] p-3">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Field catalog</p>
+              <p class="mt-1.5 text-[11px] leading-relaxed text-slate-400">Shared with Dynamic Fields Core when installed.</p>
+            </div>
+          </aside>
+<!-- Main canvas -->
+          <main class="p-4 sm:p-5">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2.5">
+                  <h2 class="font-display text-base font-semibold text-white">Contact Us</h2>
+                  <span class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-2.5 py-0.5 text-[10px] font-bold text-emerald-300">
+                    <svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+                    PUBLISHED
+                  </span>
+                </div>
+                <p class="mt-0.5 text-[11px] text-slate-500">3 sections · 12 fields · single-page layout</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] text-slate-300">
+                  <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                  <path d="M14 2v6h6"/></svg>
+                  JSON
+                </span>
+                <span class="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-semibold text-slate-300">
+                  <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                  CSV
+                </span>
+              </div>
+            </div>
+
+            <!-- Section card -->
+            <div class="mt-4 rounded-xl border border-white/10 bg-white/[.03] p-3.5 sm:p-4">
+              <div class="flex items-center gap-2.5">
+                <span class="grid h-4 w-4 shrink-0 place-items-center text-slate-600">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>
+                </span>
+                <span class="text-[13px] font-semibold text-slate-200">General Information</span>
+                <span class="rounded-md bg-white/5 px-2 py-0.5 text-[10px] font-medium text-slate-500">3 fields</span>
+                <span class="ml-auto grid h-4 w-4 place-items-center text-slate-600">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                </span>
+              </div>
+
+              <div class="mt-3 space-y-2">
+<!-- Field rows -->
+                <div class="flex items-center gap-3 rounded-lg border border-white/5 bg-[#0d1526] px-3 py-2.5">
+                  <span class="grid h-4 w-4 shrink-0 place-items-center text-slate-600">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>
+                  </span>
+                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-sky-500/15 text-sky-300">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M9 7v13M6 20h6"/></svg>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-[13px] font-medium text-slate-200">Full Name</span>
+                    <span class="block text-[11px] text-slate-500">Text input · required</span>
+                  </span>
+                  <span class="hidden rounded-md bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold text-amber-300 sm:inline">RULE: required</span>
+                </div>
+
+                <div class="flex items-center gap-3 rounded-lg border border-indigo-400/30 bg-indigo-500/[.06] px-3 py-2.5">
+                  <span class="grid h-4 w-4 shrink-0 place-items-center text-slate-600">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>
+                  </span>
+                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-cyan-500/15 text-cyan-300">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-[13px] font-medium text-slate-200">Work Email</span>
+                    <span class="block text-[11px] text-slate-500">Email input · selected</span>
+                  </span>
+                  <span class="hidden rounded-md bg-cyan-400/10 px-2 py-0.5 text-[10px] font-bold text-cyan-300 sm:inline">RULE: email</span>
+                </div>
+
+                <div class="flex items-center gap-3 rounded-lg border border-white/5 bg-[#0d1526] px-3 py-2.5">
+                  <span class="grid h-4 w-4 shrink-0 place-items-center text-slate-600">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><circle cx="9" cy="5" r="1.6"/><circle cx="15" cy="5" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="19" r="1.6"/><circle cx="15" cy="19" r="1.6"/></svg>
+                  </span>
+                  <span class="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-violet-500/15 text-violet-300">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  </span>
+                  <span class="min-w-0 flex-1">
+                    <span class="block text-[13px] font-medium text-slate-200">Message</span>
+                    <span class="block text-[11px] text-slate-500">Textarea · auto-sanitized</span>
+                  </span>
+                  <span class="hidden rounded-md bg-emerald-400/10 px-2 py-0.5 text-[10px] font-bold text-emerald-300 sm:inline">STRIPPED</span>
+                </div>
+              </div>
+<!-- Add-field & canvas footer -->
+                <button type="button" class="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-white/10 py-2.5 text-xs font-medium text-slate-500 transition hover:border-indigo-400/40 hover:text-indigo-300">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                  Add field
+                </button>
+              </div>
+
+              <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <span class="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
+                  <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  Validated on submit · sanitized on store
+                </span>
+                <div class="flex gap-2">
+                  <span class="rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-[11px] font-semibold text-slate-300">Save draft</span>
+                  <span class="rounded-lg bg-gradient-to-r from-indigo-500 to-violet-500 px-3.5 py-2 text-[11px] font-bold text-white">Publish ✓</span>
+                </div>
+              </div>
+            </main>
+
+            <!-- Inspector -->
+            <aside class="hidden border-l border-white/5 bg-[#0c1122] p-4 xl:block">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Field settings</p>
+              <div class="mt-3 space-y-3">
+                <div>
+                  <label class="mb-1 block text-[11px] font-medium text-slate-400">Label</label>
+                  <div class="rounded-lg border border-white/10 bg-[#0d1526] px-3 py-2 text-[12px] text-slate-200">Work Email</div>
+                </div>
+                <div>
+                  <label class="mb-1 block text-[11px] font-medium text-slate-400">Field type</label>
+                  <div class="flex items-center justify-between rounded-lg border border-white/10 bg-[#0d1526] px-3 py-2 text-[12px] text-slate-200">Email
+                    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between rounded-lg border border-white/10 bg-[#0d1526] px-3 py-2.5">
+                  <span class="text-[12px] text-slate-200">Required on submit</span>
+                  <span class="relative h-5 w-9 rounded-full bg-indigo-500"><span class="absolute right-1 top-1 h-3 w-3 rounded-full bg-white shadow"></span></span>
+                </div>
+                <div>
+                  <label class="mb-1 block text-[11px] font-medium text-slate-400">Validation rules</label>
+                  <div class="rounded-lg border border-cyan-400/20 bg-cyan-400/[.06] px-3 py-2 font-mono text-[11px] font-semibold text-cyan-300">required|email</div>
+                </div>
+              </div>
+              <div class="mt-4 rounded-lg border border-amber-400/20 bg-amber-400/10 p-2.5 text-[11px] leading-relaxed text-amber-200">
+                Laravel rules run server-side on every submit — no client-side trust required.
+              </div>
+            </aside>
+          </div>
+        </div>
+<!-- Floating accent cards -->
+        <div class="pointer-events-none absolute -right-5 top-28 z-10 hidden animate-float-slow lg:block">
+          <div class="w-52 rounded-2xl border border-white/10 bg-[#0c1326]/95 p-4 shadow-2xl backdrop-blur">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-medium text-slate-400">New submissions</span>
+              <span class="rounded-full bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300">+18%</span>
+            </div>
+            <p class="mt-1 font-display text-2xl font-bold text-white">128 <span class="text-sm font-medium text-slate-500">this week</span></p>
+            <div class="mt-3 flex items-end gap-1">
+              <span class="h-3 w-1.5 rounded-sm bg-slate-700"></span>
+              <span class="h-4 w-1.5 rounded-sm bg-slate-700"></span>
+              <span class="h-5 w-1.5 rounded-sm bg-indigo-400/60"></span>
+              <span class="h-7 w-1.5 rounded-sm bg-indigo-400/70"></span>
+              <span class="h-6 w-1.5 rounded-sm bg-indigo-400/80"></span>
+              <span class="h-8 w-1.5 rounded-sm bg-indigo-400"></span>
+              <span class="h-10 w-1.5 rounded-sm bg-gradient-to-t from-indigo-500 to-cyan-400"></span>
+            </div>
+          </div>
+        </div>
+        <div class="pointer-events-none absolute -left-6 bottom-16 z-10 hidden animate-float-slower lg:block">
+          <div class="overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e]/95 shadow-2xl backdrop-blur">
+            <div class="flex items-center gap-1.5 border-b border-white/5 px-4 py-2.5">
+              <span class="h-2 w-2 rounded-full bg-rose-500/70"></span><span class="h-2 w-2 rounded-full bg-amber-400/70"></span><span class="h-2 w-2 rounded-full bg-emerald-500/70"></span>
+              <span class="ml-2 font-mono text-[10px] text-slate-500">terminal</span>
+            </div>
+            <p class="max-w-[17rem] px-4 py-3 font-mono text-[11px] leading-relaxed text-slate-300">
+              <span class="font-semibold text-emerald-400">$</span> composer require<br />
+              <span class="font-semibold text-slate-100">&nbsp;&nbsp;spiggle/form-builder-core</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    <!-- ============ TRUST STRIP ============ -->
+    <div class="border-y border-white/5 bg-white/[.02]">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 py-6 sm:px-6 lg:px-8">
+        <span class="text-xs font-semibold uppercase tracking-widest text-slate-500">One type system. Full stack:</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">PHP 8.3+</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">Laravel 13</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">Filament 5</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">Livewire</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">Blade</span>
+        <span class="text-sm font-semibold text-slate-300 transition hover:text-white">Tailwind</span>
+      </div>
+    </div>
+<!-- ============ FEATURES ============ -->
+  <section id="features" class="relative scroll-mt-24 overflow-hidden py-20 sm:py-28">
+    <div class="pointer-events-none absolute inset-0 bg-grid-fade" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -top-20 right-0 h-96 w-96 rounded-full bg-violet-600/10 blur-[120px]" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-indigo-400/25 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-indigo-300">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.4 7.2H22l-6 4.6 2.3 7.2-6.3-4.5-6.3 4.5L8 13.8l-6-4.6h7.6z"/></svg>
+          Core features
+        </span>
+        <h2 class="mt-5 font-display text-3xl font-bold tracking-tight text-white sm:text-5xl">
+          Everything you need to <span class="text-gradient">ship intake forms.</span>
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-400 sm:text-lg">
+          The Community Edition ships the visual designer, public renderer, submission inbox, and CSV export —
+          no Pro license required to start publishing.
+        </p>
+      </div>
+
+      <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v20M2 12h20M12 2a10 10 0 0 1 8.66 5M12 2a10 10 0 0 0-8.66 5M12 22a10 10 0 0 0 8.66-5M12 22a10 10 0 0 1-8.66-5M2 12a10 10 0 0 1 5-8.66M22 12a10 10 0 0 0-5-8.66M2 12a10 10 0 0 0 5 8.66M22 12a10 10 0 0 1-5 8.66"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">No-Code Visual Builder</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Drag sections and fields onto a canvas inside Filament. Publish when ready — no Blade, no Vue, no build step.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.06s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Public Livewire Renderer</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Guests get a self-contained Blade + Livewire UI served at <code class="font-mono text-xs text-cyan-300">/forms/{path}</code>. No Filament CSS leaks to the public side.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.12s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5.1L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.7 4H7.3a2 2 0 0 0-1.8 1.1z"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Submission Inbox</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Filter, review, archive, and bulk-manage responses in the panel — with status filters and an audit log for every export and bulk action.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.18s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Validation &amp; Sanitization</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Laravel's rule engine validates every submit server-side, and HTML is stripped from plain-text fields automatically.</p>
+        </article>
+<!-- Feature cards 5–8 -->
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">CSV &amp; JSON Portability</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Native CSV export plus JSON export/import (<code class="font-mono text-xs text-cyan-300">form-builder:export</code> / <code class="font-mono text-xs text-cyan-300">:import</code>) so definitions travel between environments.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.06s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 20l-5.4-5.4a2 2 0 0 1 0-2.8L14 1.4a2 2 0 0 1 2.8 0l5.8 5.8a2 2 0 0 1 0 2.8L12 20.4a2 2 0 0 1-1.4.6H6a2 2 0 0 1-2-2v-4.6A2 2 0 0 1 3.6 13L4 12.7"/><path d="M7.5 16.5l9-9"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Custom Public Paths</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Clean URLs like <code class="font-mono text-xs text-cyan-300">/forms/contact-us</code> with conflict hashing. Swap the prefix via <code class="font-mono text-xs text-cyan-300">FORM_BUILDER_ROUTE_PREFIX</code>.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.12s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Dynamic Fields Ready</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400">Reuses the same <code class="font-mono text-xs text-cyan-300">FieldCatalog</code> when Spiggle Dynamic Fields is installed — one field-type system across the suite.</p>
+        </article>
+
+        <article class="reveal group rounded-2xl border border-white/10 bg-white/[.03] p-6 transition-all duration-300 hover:-translate-y-1 hover:border-indigo-400/30 hover:bg-white/[.05] hover:shadow-xl hover:shadow-indigo-500/10" style="transition-delay:.18s">
+          <span class="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-indigo-500/25 to-cyan-500/20 text-indigo-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+            <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+          </span>
+          <h3 class="mt-5 font-display text-base font-semibold text-white">Pro-Ready Architecture</h3>
+          <p class="mt-2 text-sm leading-relaxed text-slate-400"><code class="font-mono text-xs text-cyan-300">FeatureCatalog</code> and <code class="font-mono text-xs text-cyan-300">ProUnlock</code> hooks let the licensed add-on layer wizards, tabs, masking, and XLSX export on top of Core.</p>
+        </article>
+      </div>
+<!-- How it works strip -->
+      <div class="reveal mt-16 grid gap-4 rounded-3xl border border-white/10 bg-gradient-to-br from-white/[.04] to-white/[.01] p-6 sm:p-8 lg:grid-cols-3">
+        <div class="flex items-start gap-4">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-indigo-500/15 font-display text-sm font-bold text-indigo-300 ring-1 ring-inset ring-indigo-400/20">1</span>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Design</h3>
+            <p class="mt-1 text-sm leading-relaxed text-slate-400">Compose sections and fields in the Filament panel with real-time validation rules.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-500/15 font-display text-sm font-bold text-violet-300 ring-1 ring-inset ring-violet-400/20">2</span>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Publish</h3>
+            <p class="mt-1 text-sm leading-relaxed text-slate-400">Flip the switch. Your form goes live at a public URL — no frontend deployment.</p>
+          </div>
+        </div>
+        <div class="flex items-start gap-4">
+          <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-cyan-500/15 font-display text-sm font-bold text-cyan-300 ring-1 ring-inset ring-cyan-400/20">3</span>
+          <div>
+            <h3 class="text-sm font-semibold text-white">Collect</h3>
+            <p class="mt-1 text-sm leading-relaxed text-slate-400">Validated submissions land in the inbox. Review, archive, or export to CSV anytime.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- ============ CODE / CONFIG PREVIEW ============ -->
+  <section id="code" class="relative scroll-mt-24 py-20 sm:py-28">
+    <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-cyan-400/25 bg-cyan-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-cyan-300">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 9l-3 3 3 3M16 9l3 3-3 3"/><path d="M13 5l-2 14"/></svg>
+          For developers
+        </span>
+        <h2 class="mt-5 font-display text-3xl font-bold tracking-tight text-white sm:text-5xl">
+          From zero to <span class="text-gradient">live form</span> in four commands.
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-400 sm:text-lg">
+          Install, register, migrate, publish — copy-paste ready for Laravel 13 + Filament 5.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="reveal mt-12" role="tablist" aria-label="Code examples">
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <button type="button" role="tab" id="tab-install" data-tab="install" aria-selected="true"
+                  class="tab-btn inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/15 px-4 py-2 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/25">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+            Installation
+          </button>
+          <button type="button" role="tab" id="tab-usage" data-tab="usage" aria-selected="false"
+                  class="tab-btn inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 20h8M12 16v4"/></svg>
+            Basic Usage
+          </button>
+          <button type="button" role="tab" id="tab-advanced" data-tab="advanced" aria-selected="false"
+                  class="tab-btn inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            Advanced Config
+          </button>
+          <button type="button" role="tab" id="tab-events" data-tab="events" aria-selected="false"
+                  class="tab-btn inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10">
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            Events &amp; Hooks
+          </button>
+        </div>
+      </div>
+<!-- Raw snippet sources (read by JS) -->
+      <script type="text/plain" id="snip-install">
+# 1. Require the package
+composer require spiggle/form-builder-core
+
+# 2. Publish config & migrations
+php artisan vendor:publish --tag=form-builder-config
+php artisan vendor:publish --tag=form-builder-migrations
+
+# 3. Run migrations
+php artisan migrate
+
+# 4. (Optional) seed sample forms
+php artisan form-builder:seed</script>
+      <script type="text/plain" id="snip-usage">
+// app/Providers/Filament/AdminPanelProvider.php
+use Spiggle\FormBuilder\Filament\FormBuilderPlugin;
+
+public function panel(Panel $panel): Panel
+{
+    return $panel
+        ->default()
+        ->id('admin')
+        ->plugins([
+            FormBuilderPlugin::make(),
+        ]);
+}</script>
+      <script type="text/plain" id="snip-advanced">
+// config/form-builder.php — published via vendor:publish
+
+return [
+    // Public URL prefix — /forms/{base_path}
+    'route_prefix' => env('FORM_BUILDER_ROUTE_PREFIX', 'forms'),
+
+    // Optionally intercept the root path for vanity URLs
+    'root_paths' => (bool) env('FORM_BUILDER_ROOT_PATHS', false),
+
+    // Audit exports and bulk actions
+    'audit_log' => true,
+
+    // Field type catalog (synced with Dynamic Fields via FieldCatalog)
+    'field_types' => ['text', 'textarea', 'email', 'select', 'radio', 'boolean'],
+];</script>
+      <script type="text/plain" id="snip-events">
+use Spiggle\FormBuilder\Events\FormSubmitted;
+
+// app/Providers/AppServiceProvider.php
+Event::listen(FormSubmitted::class, function (FormSubmitted $event) {
+    $submission = $event->submission;
+
+    // Forward to a CRM, notify a team, trigger a workflow...
+    LeadPipeline::dispatch($submission->toArray());
+});</script>
+<!-- Code window -->
+      <div class="reveal mt-8 overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] shadow-2xl glow-ring">
+        <div class="flex items-center justify-between gap-3 border-b border-white/5 bg-[#0d1428] px-4 py-3">
+          <div class="flex min-w-0 items-center gap-3">
+            <div class="hidden gap-1.5 sm:flex">
+              <span class="h-3 w-3 rounded-full bg-rose-500/80"></span>
+              <span class="h-3 w-3 rounded-full bg-amber-400/80"></span>
+              <span class="h-3 w-3 rounded-full bg-emerald-500/80"></span>
+            </div>
+            <span id="codeFilename" class="truncate font-mono text-xs text-slate-400">commands.sh</span>
+            <span id="codeLang" class="hidden shrink-0 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[10px] font-semibold text-cyan-300 sm:inline">bash</span>
+          </div>
+          <button id="copyBtn" type="button"
+                  class="inline-flex shrink-0 items-center gap-2 rounded-lg border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 active:scale-95">
+            <svg id="copyIcon" viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copyLabel">Copy</span>
+          </button>
+        </div>
+        <pre id="codeView" role="tabpanel" aria-label="Code" class="linenums code-scroll overflow-x-auto p-5 font-mono text-[13px] leading-6 text-slate-300"></pre>
+      </div>
+
+      <div class="reveal mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-500">
+        <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-rose-400"></span> PHP 8.3+</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-orange-400"></span> Laravel 13</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-amber-300"></span> Filament ^5</span>
+        <span class="inline-flex items-center gap-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> MIT · Community Edition</span>
+        <a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/" target="_blank" rel="noopener" class="inline-flex items-center gap-1 font-semibold text-indigo-300 transition hover:text-indigo-200">
+          Read the full guide
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+<!-- ============ ECOSYSTEM ============ -->
+  <section id="ecosystem" class="relative scroll-mt-24 overflow-hidden border-t border-white/5 py-20 sm:py-28">
+    <div class="pointer-events-none absolute inset-0 bg-grid-fade" aria-hidden="true"></div>
+    <div class="pointer-events-none absolute -bottom-32 left-1/2 h-96 w-[720px] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[140px]" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal mx-auto max-w-2xl text-center">
+        <span class="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-violet-300">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          The Spiggle Suite
+        </span>
+        <h2 class="mt-5 font-display text-3xl font-bold tracking-tight text-white sm:text-5xl">
+          Packages that <span class="text-gradient">play together.</span>
+        </h2>
+        <p class="mt-4 text-base leading-relaxed text-slate-400 sm:text-lg">
+          One opinionated ecosystem for form-driven Laravel apps. Form Builder reuses the same field-type catalog
+          as Dynamic Fields — install both, and the whole panel speaks one language.
+        </p>
+      </div>
+
+      <div class="reveal mt-14 grid gap-5 md:grid-cols-2">
+        <article class="group flex flex-col rounded-3xl border border-white/10 bg-white/[.03] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-400/30 hover:shadow-2xl hover:shadow-emerald-500/5">
+          <div class="flex items-center justify-between">
+            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500/25 to-cyan-500/20 text-emerald-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            </span>
+            <span class="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-emerald-300">MIT · Free</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">Dynamic Fields Core</h3>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-400">
+            Reusable EAV custom fields for any Eloquent model — Filament UI, typed values, and seed/verify tooling.
+            Form Builder auto-shares its <code class="font-mono text-xs text-cyan-300">FieldCatalog</code> when installed.
+          </p>
+          <a href="https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/" target="_blank" rel="noopener"
+             class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 transition group-hover:gap-3">
+            View Dynamic Fields
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </article>
+
+        <article class="group flex flex-col rounded-3xl border border-white/10 bg-white/[.03] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-violet-400/30 hover:shadow-2xl hover:shadow-violet-500/5">
+          <div class="flex items-center justify-between">
+            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-violet-500/25 to-fuchsia-500/20 text-violet-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6L2 12l6 6M16 6l6 6-6 6"/><path d="M14 4l-4 16"/></svg>
+            </span>
+            <span class="rounded-full border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-violet-300">In the Spiggle suite</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">Rules Engine</h3>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-400">
+            Composable conditional logic and chainable validation rules — the DSL that keeps complex, multi-field
+            flows consistent across Spiggle packages — including Form Builder's Laravel rule sets.
+          </p>
+          <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
+            Coming soon
+            <span class="inline-flex h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse-dot"></span>
+          </span>
+        </article>
+      </div>
+<div class="mt-5 grid gap-5 md:grid-cols-2">
+        <article class="group flex flex-col rounded-3xl border border-white/10 bg-white/[.03] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-sky-400/30 hover:shadow-2xl hover:shadow-sky-500/5">
+          <div class="flex items-center justify-between">
+            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-sky-500/25 to-indigo-500/20 text-sky-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v8H4zM4 16h16v4H4zM10 8h6"/><path d="M2 2v20"/></svg>
+            </span>
+            <span class="rounded-full border border-sky-400/25 bg-sky-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-sky-300">In the Spiggle suite</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">Material Theme</h3>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-400">
+            A polished Material Design skin crafted to unify Filament admin panels and Spiggle's public form
+            renderer — consistent typography, elevation, and states out of the box.
+          </p>
+          <span class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
+            Coming soon
+            <span class="inline-flex h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse-dot"></span>
+          </span>
+        </article>
+
+        <article class="group flex flex-col rounded-3xl border border-amber-400/20 bg-gradient-to-br from-amber-400/[.06] to-white/[.02] p-7 transition-all duration-300 hover:-translate-y-1 hover:border-amber-400/40 hover:shadow-2xl hover:shadow-amber-500/5">
+          <div class="flex items-center justify-between">
+            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-amber-500/25 to-orange-500/20 text-amber-300 ring-1 ring-inset ring-white/10 transition group-hover:scale-110">
+              <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            </span>
+            <span class="rounded-full border border-amber-400/25 bg-amber-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300">Licensed add-on</span>
+          </div>
+          <h3 class="mt-5 font-display text-lg font-semibold text-white">Form Builder <span class="text-amber-300">Pro</span></h3>
+          <p class="mt-2 flex-1 text-sm leading-relaxed text-slate-400">
+            Upgrade Core with wizard, tabs, pages &amp; accordion layouts, XLSX + PDF export, input masking,
+            analytics charts, form clone, and import from Dynamic Fields.</p>
+          <a href="https://kodesmart.lemonsqueezy.com/checkout/buy/c23b259f-7845-41c3-aa24-61e92c29dc72" target="_blank" rel="noopener"
+             class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-amber-300 transition-all group-hover:gap-3">
+            Get Pro — Solo from $29.99/yr
+            <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </article>
+      </div>
+
+      <!-- Custom builds banner -->
+      <div class="reveal mt-5 flex flex-col items-center justify-between gap-6 rounded-3xl border border-white/10 bg-white/[.03] p-7 sm:p-8 lg:flex-row">
+        <div class="max-w-xl">
+          <h3 class="font-display text-lg font-semibold text-white">Need something custom for your Filament panel?</h3>
+          <p class="mt-1.5 text-sm leading-relaxed text-slate-400">
+            Spiggle builds bespoke Filament panels &amp; plugins — from a modified package to a completely new solution.
+          </p>
+        </div>
+        <a href="https://github.com/skillbobby" target="_blank" rel="noopener"
+           class="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+          Get in touch
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+<!-- ============ OPEN SOURCE STATS ============ -->
+  <section id="stats" class="relative scroll-mt-24 py-20 sm:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0c1226] to-[#0a0e1e] p-8 sm:p-12">
+        <div class="pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full bg-indigo-600/20 blur-[100px]" aria-hidden="true"></div>
+        <div class="pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-cyan-500/10 blur-[100px]" aria-hidden="true"></div>
+
+        <div class="relative flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
+          <div>
+            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse-dot"></span>
+              Live from GitHub
+            </span>
+            <h2 class="mt-4 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Open source. <span class="text-gradient">Built in the open.</span>
+            </h2>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Submit an issue
+            </a>
+            <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener"
+               class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-violet-500 px-4 py-2.5 text-xs font-bold text-white btn-glow transition hover:brightness-110">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.07.79 2.15v3.19c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+              Contribute
+            </a>
+          </div>
+        </div>
+
+        <div class="relative mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          <div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:bg-white/[.05]">
+            <p class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-amber-300" fill="currentColor"><path d="M12 2l2.9 6.26L21.5 9.3l-4.9 4.53L17.9 21 12 17.7 6.1 21l1.3-7.17L2.5 9.3l6.6-1.04L12 2z"/></svg>
+              GitHub Stars
+            </p>
+            <p class="mt-2 font-display text-4xl font-bold text-white tabular-nums"><span id="statStars" data-count="7">0</span></p>
+            <p class="mt-1 text-xs text-slate-500">and counting — star us today</p>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:bg-white/[.05]">
+            <p class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-indigo-300" fill="currentColor"><path d="M6 2H2v4M2 22v-4M22 2h-4M22 22h-4M2 12h3m14 0h3M12 2v3m0 14v3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1M18.4 5.6l-2.1 2.1M6.9 16.3l-2.1 2.1"/></svg>
+              Forks
+            </p>
+            <p class="mt-2 font-display text-4xl font-bold text-white tabular-nums"><span id="statForks" data-count="1">0</span></p>
+            <p class="mt-1 text-xs text-slate-500">remixes of the core</p>
+          </div>
+<div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:bg-white/[.05]">
+            <p class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-cyan-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Open Issues
+            </p>
+            <p class="mt-2 font-display text-4xl font-bold text-white tabular-nums"><span id="statIssues" data-count="0">0</span></p>
+            <p class="mt-1 text-xs text-slate-500">clean triage queue</p>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:bg-white/[.05]">
+            <p class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-violet-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6l-2 6h5l-1 8 6-10H9.5L12 6H8z"/></svg>
+              Commits
+            </p>
+            <p class="mt-2 font-display text-4xl font-bold text-white tabular-nums"><span id="statCommits" data-count="57">0</span></p>
+            <p class="mt-1 text-xs text-slate-500">and shipping · v2.0.11</p>
+          </div>
+
+          <div class="rounded-2xl border border-white/10 bg-white/[.03] p-5 transition hover:bg-white/[.05]">
+            <p class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-slate-500">
+              <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              License
+            </p>
+            <p class="mt-2 font-display text-4xl font-bold text-white">MIT</p>
+            <p class="mt-1 text-xs text-slate-500">Community Edition — 100% free</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- ============ CTA BAND ============ -->
+  <section class="relative py-8 pb-20 sm:pb-28">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal relative overflow-hidden rounded-3xl border border-indigo-400/25 bg-gradient-to-br from-indigo-600/25 via-[#0c1226] to-violet-600/20 p-8 text-center sm:p-14">
+        <div class="pointer-events-none absolute -top-32 left-1/2 h-64 w-[560px] -translate-x-1/2 rounded-full bg-indigo-500/25 blur-[110px]" aria-hidden="true"></div>
+
+        <div class="relative">
+          <span class="inline-flex items-center gap-2 rounded-full border border-indigo-400/25 bg-indigo-500/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-indigo-300">
+            Free forever · MIT licensed
+          </span>
+          <h2 class="mx-auto mt-5 max-w-2xl font-display text-3xl font-bold tracking-tight text-white sm:text-5xl">
+            Ready to publish your <span class="text-gradient">first form?</span>
+          </h2>
+          <p class="mx-auto mt-4 max-w-xl text-base leading-relaxed text-slate-400 sm:text-lg">
+            One composer command and you're building dynamic forms in your Filament panel — with a public URL,
+            server-side validation, and a submission inbox.
+          </p>
+
+          <div class="mx-auto mt-8 max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] shadow-2xl">
+            <div class="flex items-center justify-between gap-3 border-b border-white/5 bg-[#0d1428] px-4 py-2.5">
+              <span class="font-mono text-[11px] text-slate-500">composer install</span>
+              <button id="ctaCopyBtn" type="button"
+                      class="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300 transition hover:bg-white/10">
+                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <p class="px-5 py-4 text-left font-mono text-[13px] font-semibold text-slate-100">
+              <span class="text-emerald-400">$</span> composer require <span class="text-indigo-300">spiggle/form-builder-core</span>
+            </p>
+          </div>
+
+          <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener"
+               class="group inline-flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-violet-500 px-6 py-3.5 text-sm font-semibold text-white btn-glow transition hover:brightness-110 active:scale-[.98] sm:w-auto">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 transition-transform group-hover:-translate-y-0.5" fill="currentColor"><path d="M12 2l2.9 6.26L21.5 9.3l-4.9 4.53L17.9 21 12 17.7 6.1 21l1.3-7.17L2.5 9.3l6.6-1.04L12 2z"/></svg>
+              Star on GitHub
+            </a>
+            <a href="https://youtu.be/HtSdjyPaJhw" target="_blank" rel="noopener"
+               class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-slate-100 transition hover:border-white/20 hover:bg-white/10 active:scale-[.98] sm:w-auto">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              Watch the demo
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<!-- ============ FOOTER ============ -->
+  <footer class="border-t border-white/5 bg-[#050810]">
+    <div class="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      <div class="grid gap-10 lg:grid-cols-5">
+        <div class="space-y-4 lg:col-span-2">
+          <a href="#top" class="flex items-center gap-2.5">
+            <span class="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 shadow-lg shadow-indigo-500/30">
+              <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="#060a14" stroke-width="2.4" stroke-linecap="round"><path d="M5 7h14M5 12h9M5 17h11"/></svg>
+            </span>
+            <span class="font-display text-lg font-semibold tracking-tight text-white">Spiggle <span class="font-medium text-slate-400">Form Builder</span></span>
+          </a>
+          <p class="max-w-sm text-sm leading-relaxed text-slate-500">
+            Public forms for Laravel + Filament — build once, publish anywhere. The open-source core of the
+            Spiggle suite, crafted by skillbobby.
+          </p>
+          <div class="flex items-center gap-2">
+            <a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener" aria-label="GitHub repository"
+               class="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.72.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.35.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.84 1.19 3.1 0 4.43-2.7 5.41-5.27 5.69.42.36.79 1.07.79 2.15v3.19c0 .3.2.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/></svg>
+            </a>
+            <a href="https://youtu.be/HtSdjyPaJhw" target="_blank" rel="noopener" aria-label="Demo video on YouTube"
+               class="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="currentColor"><path d="M23 7.5s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.4-1C16.8 4 12 4 12 4s-4.8 0-7.7.2c-.5.1-1.5.1-2.4 1-.7.7-.9 2.3-.9 2.3S.8 9.4.8 11.3v1.4c0 1.9.2 3.8.2 3.8s.2 1.6.9 2.3c.9.9 2 .9 2.4 1 1.8.2 7.7.2 7.7.2s4.8 0 7.7-.2c.5-.1 1.5-.1 2.4-1 .7-.7.9-2.3.9-2.3s.2-1.9.2-3.8v-1.4c0-1.9-.2-3.8-.2-3.8zM9.8 15.3V8.7l6.2 3.3-6.2 3.3z"/></svg>
+            </a>
+            <a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/" target="_blank" rel="noopener" aria-label="Product site"
+               class="grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-slate-300 transition hover:bg-white/10 hover:text-white">
+              <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Product</h3>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="#features" class="text-slate-400 transition hover:text-white">Features</a></li>
+            <li><a href="#ecosystem" class="text-slate-400 transition hover:text-white">Ecosystem</a></li>
+            <li><a href="#code" class="text-slate-400 transition hover:text-white">Installation</a></li>
+            <li><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Source on GitHub</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Resources</h3>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Documentation &amp; guide</a></li>
+            <li><a href="https://youtu.be/HtSdjyPaJhw" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Demo video</a></li>
+            <li><a href="https://skillbobby.com/larafill/public/admin/login" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Live demo — demo@user.net / password</a></li>
+            <li><a href="https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Dynamic Fields Core</a></li>
+          </ul>
+        </div>
+<div>
+          <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500">Community</h3>
+          <ul class="mt-4 space-y-2.5 text-sm">
+            <li><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/issues" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Issues &amp; ideas</a></li>
+            <li><a href="https://github.com/skillbobby" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Author — skillbobby</a></li>
+            <li><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/blob/main/SECURITY.md" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">Security policy</a></li>
+            <li><a href="https://github.com/skillbobby/Spiggle-Form-Builder-Core/blob/main/LICENSE" target="_blank" rel="noopener" class="text-slate-400 transition hover:text-white">MIT License</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/5 pt-6 sm:flex-row">
+        <p class="text-xs text-slate-600">© 2026 Spiggle · Built with ♥ for the Filament community by skillbobby.</p>
+        <p class="inline-flex items-center gap-2 text-xs text-slate-600">
+          <svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          MIT Licensed · Community Edition v2.0.11
+        </p>
+      </div>
+    </div>
+  </footer>
+<!-- ============ SCRIPTS ============ -->
+  <script>
+  (function () {
+    "use strict";
+
+    // Header state
+    var header = document.getElementById("siteHeader");
+    var ON_SCROLL_CLASSES = ["bg-slate-950/80", "backdrop-blur-xl", "border-b", "border-white/5", "shadow-lg", "shadow-black/30"];
+    function applyHeader() {
+      if (window.scrollY > 12) header.classList.add.apply(header.classList, ON_SCROLL_CLASSES);
+      else header.classList.remove.apply(header.classList, ON_SCROLL_CLASSES);
+    }
+    window.addEventListener("scroll", applyHeader, { passive: true });
+    applyHeader();
+
+    // Mobile menu
+    var toggle = document.getElementById("menuToggle");
+    var menu = document.getElementById("mobileMenu");
+    var iconOpen = document.getElementById("iconOpen");
+    var iconClose = document.getElementById("iconClose");
+    function setMenu(open) {
+      menu.classList.toggle("hidden", !open);
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      iconOpen.classList.toggle("hidden", open);
+      iconClose.classList.toggle("hidden", !open);
+    }
+    toggle.addEventListener("click", function () { setMenu(menu.classList.contains("hidden")); });
+    document.querySelectorAll(".mobile-link").forEach(function (a) {
+      a.addEventListener("click", function () { setMenu(false); });
+    });
+
+    // Code highlighting
+    function escapeHtml(s) {
+      return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+    function wrapLine(inner) {
+      return '<span class="code-line">' + (inner || "&nbsp;") + "</span>";
+    }
+    function highlightBash(line) {
+      var e = escapeHtml(line).replace(/\r/g, "");
+      var out = "", last = 0, m;
+      while ((m = BASH_MASTER.exec(e))) {
+        out += e.slice(last, m.index);
+        if (m[1] !== undefined) out += '<span class="tok-com">' + m[1] + "</span>";
+        else if (m[2] !== undefined) out += '<span class="tok-str">' + m[2] + "</span>";
+        else if (m[3] !== undefined) out += '<span class="tok-flag">' + m[3] + "</span>";
+        else if (m[4] !== undefined) out += '<span class="tok-prompt">' + m[4] + "</span>";
+        else if (m[5] !== undefined) out += '<span class="tok-cmd">' + m[5] + "</span>";
+        last = m.index + m[0].length;
+      }
+      out += e.slice(last);
+      return wrapLine(out);
+    }
+    var BASH_MASTER = new RegExp(
+      "(^\\s*#.*$)|" +
+      "(\"[^\"]*\"|'[^']*')|" +
+      "(--[\\w-]+(?:=[\\w.:\\/-]+)?)|" +
+      "(^\\s*\\$)|" +
+      "(^\\s*[a-z][\\w-]*)",
+      "g"
+    );
+    var PHP_MASTER = new RegExp(
+      "(\\/\\/.*)$|" +
+      "(\"[^\"]*\"|'[^']*')|" +
+      "(\\$[A-Za-z_][A-Za-z0-9_]*)|" +
+      "(->)([A-Za-z_][A-Za-z0-9_]*)|" +
+      "(\\b(?:use|function|return|new|public|private|protected|static|class|namespace|extends|implements|const|if|else|foreach|for|env|listen)\\b)|" +
+      "(\\b[A-Z][A-Za-z0-9_]*(?:\\\\[A-Z][A-Za-z0-9_]*)*\\b)",
+      "g"
+    );
+    function highlightPhp(line) {
+      var e = escapeHtml(line).replace(/\r/g, "");
+      var out = "", last = 0, m;
+      while ((m = PHP_MASTER.exec(e))) {
+        out += e.slice(last, m.index);
+        if (m[1] !== undefined) out += '<span class="tok-com">' + m[1] + "</span>";
+        else if (m[2] !== undefined) out += '<span class="tok-str">' + m[2] + "</span>";
+        else if (m[3] !== undefined) out += '<span class="tok-var">' + m[3] + "</span>";
+        else if (m[4] !== undefined) out += "->" + '<span class="tok-fn">' + m[5] + "</span>";
+        else if (m[6] !== undefined) out += '<span class="tok-key">' + m[6] + "</span>";
+        else if (m[7] !== undefined) out += '<span class="tok-cls">' + m[7] + "</span>";
+        last = m.index + m[0].length;
+      }
+      out += e.slice(last);
+      return wrapLine(out);
+    }
+
+    // Code tabs
+    var snippets = {
+      install:  { id: "snip-install",  lang: "bash", file: "commands.sh",            label: "bash" },
+      usage:    { id: "snip-usage",    lang: "php",  file: "AdminPanelProvider.php",    label: "php" },
+      advanced: { id: "snip-advanced", lang: "php", file: "config/form-builder.php", label: "php" },
+      events:   { id: "snip-events",   lang: "php",  file: "FormSubmitted.php",        label: "php" }
+    };
+    var TAB_ACTIVE = "tab-btn inline-flex items-center gap-2 rounded-xl border border-indigo-400/30 bg-indigo-500/15 px-4 py-2 text-sm font-semibold text-indigo-200 transition hover:bg-indigo-500/25";
+    var TAB_IDLE = "tab-btn inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-300 transition hover:bg-white/10";
+    var codeView = document.getElementById("codeView");
+    var currentKey = "install";
+
+    function renderTab(key) {
+      var s = snippets[key];
+      document.querySelectorAll(".tab-btn").forEach(function (b) {
+        b.setAttribute("aria-selected", b.dataset.tab === key ? "true" : "false");
+        b.className = b.dataset.tab === key ? TAB_ACTIVE : TAB_IDLE;
+      });
+      var raw = (document.getElementById(s.id).textContent || "").replace(/^\n+/, "").replace(/\s+$/, "");
+      var fn = s.lang === "bash" ? highlightBash : highlightPhp;
+      codeView.innerHTML = raw.split("\n").map(fn).join("\n");
+      document.getElementById("codeFilename").textContent = s.file;
+      document.getElementById("codeLang").textContent = s.label;
+      currentKey = key;
+    }
+    document.querySelectorAll(".tab-btn").forEach(function (b) {
+      b.addEventListener("click", function () { renderTab(b.dataset.tab); });
+    });
+    renderTab(currentKey);
+// Copy to clipboard
+    function legacyCopy(text, done) {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done();
+    }
+    function clipboardCopy(text, done) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { legacyCopy(text, done); });
+      } else { legacyCopy(text, done); }
+    }
+    function flashCopied(btn, labelEl) {
+      var original = labelEl.textContent;
+      labelEl.textContent = "Copied!";
+      btn.classList.add("border-emerald-400/40", "text-emerald-300");
+      setTimeout(function () {
+        labelEl.textContent = original;
+        btn.classList.remove("border-emerald-400/40", "text-emerald-300");
+      }, 1800);
+    }
+    document.getElementById("copyBtn").addEventListener("click", function () {
+      var s = snippets[currentKey];
+      var raw = (document.getElementById(s.id).textContent || "").replace(/^\n+/, "").replace(/\s+$/, "").replace(/\r/g, "");
+      clipboardCopy(raw, function () { flashCopied(this, document.getElementById("copyLabel")); }.bind(this));
+    });
+    var CTA_TEXT = "composer require spiggle/form-builder-core";
+    document.getElementById("ctaCopyBtn").addEventListener("click", function () {
+      var label = this.querySelector("span");
+      clipboardCopy(CTA_TEXT, function () { flashCopied(this, label); }.bind(this));
+    });
+
+    // GitHub live stats (falls back to seeded values)
+    var LIVE_DEFAULTS = { stars: 7, forks: 1, issues: 0, commits: 57 };
+    function setStat(id, value) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = String(value).toLocaleString();
+    }
+    function fetchGitHubStats() {
+      if (!window.fetch) return;
+      var ctrl = new AbortController();
+      var timer = setTimeout(function () { ctrl.abort(); }, 4500);
+      fetch("https://api.github.com/repos/skillbobby/Spiggle-Form-Builder-Core", { signal: ctrl.signal })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d) return;
+          if (typeof d.stargazers_count === "number") LIVE_DEFAULTS.stars = d.stargazers_count;
+          if (typeof d.forks_count === "number") LIVE_DEFAULTS.forks = d.forks_count;
+          if (typeof d.open_issues_count === "number") LIVE_DEFAULTS.issues = d.open_issues_count;
+          setStat("ghStarsNav", LIVE_DEFAULTS.stars);
+          setStat("ghStarsHero", LIVE_DEFAULTS.stars);
+        })
+        .catch(function () { /* keep seeded numbers */ })
+        .then(function () { clearTimeout(timer); });
+    }
+    fetchGitHubStats();
+
+    // Count-up when stats section enters view
+    function animateCount(el, target) {
+      var dur = 1300, start = null;
+      function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(target * eased).toLocaleString();
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+    var statsSection = document.getElementById("stats");
+    var statsAnimated = false;
+    function animateStats() {
+      if (statsAnimated) return;
+      statsAnimated = true;
+      animateCount(document.getElementById("statStars"), LIVE_DEFAULTS.stars);
+      animateCount(document.getElementById("statForks"), LIVE_DEFAULTS.forks);
+      animateCount(document.getElementById("statIssues"), LIVE_DEFAULTS.issues);
+      animateCount(document.getElementById("statCommits"), LIVE_DEFAULTS.commits);
+    }
+
+    // Scroll reveal
+    var revealEls = document.querySelectorAll(".reveal");
+    function revealAll() { revealEls.forEach(function (el) { el.classList.add("in-view"); }); }
+    if ("IntersectionObserver" in window) {
+      var revealIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) {
+            en.target.classList.add("in-view");
+            revealIO.unobserve(en.target);
+          }
+        });
+      }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+      revealEls.forEach(function (el) { if (!el.classList.contains("in-view")) revealIO.observe(el); });
+
+      var statsIO = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) { if (en.isIntersecting) { animateStats(); statsIO.disconnect(); } });
+      }, { threshold: 0.35 });
+      if (statsSection) statsIO.observe(statsSection);
+    } else {
+      revealAll();
+      animateStats();
+    }
+
+    // Active section highlighting in nav
+    var navLinks = document.querySelectorAll("header a.nav-link");
+    var sections = ["features", "ecosystem", "code"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+    var navIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        navLinks.forEach(function (l) {
+          var match = l.getAttribute("href") === "#" + en.target.id;
+          if (en.isIntersecting && match) l.classList.add("text-indigo-300");
+          else if (!match) l.classList.remove("text-indigo-300");
+          else if (!en.isIntersecting) l.classList.remove("text-indigo-300");
+        });
+      });
+    }, { rootMargin: "-40% 0px -55% 0px" });
+    sections.forEach(function (s) { navIO.observe(s); });
+  })();
+  </script>
+</body>
+</html>
