@@ -160,6 +160,12 @@ php artisan form-builder:seed
 
 Please report vulnerabilities privately — see [SECURITY.md](SECURITY.md). Do not open a public issue for security problems.
 
+## Sponsors
+
+If this package is useful, consider supporting development:
+
+[![GitHub Sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=%23EA4AAA)](https://github.com/sponsors/skillbobby)
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Community Edition is free and open source. Pro is a separate commercial add-on.
