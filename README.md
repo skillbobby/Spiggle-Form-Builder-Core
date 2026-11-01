@@ -151,7 +151,7 @@ php artisan form-builder:seed
 
 - **[Full documentation](https://skillbobby.github.io/Spiggle-Form-Builder-Core/guide/)** — architecture, workflows, configuration
 - **[Demo video](https://youtu.be/HtSdjyPaJhw)** — Forms, public URL, builder, and submissions
-- **[Live demo](https://skillbobby.com/larafill/public/admin/login)** — `demo@user.net` / `password`
+- **[Live demo](https://spiggle.skillbobby.com)** — `demo@spiggle.net` / `password`
 - **[Spiggle Dynamic Fields Core](https://skillbobby.github.io/Spiggle-Dynamic-Fields-Core/)** — reusable field types for Eloquent models
 
 ---
