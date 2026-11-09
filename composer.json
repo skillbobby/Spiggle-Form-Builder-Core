@@ -37,6 +37,12 @@
         "spatie/laravel-activitylog": "Audit logging for exports and bulk submission actions.",
         "bezhansalleh/filament-shield": "Role-based access for form and submission resources."
     },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "orchestra/testbench": "^9.0|^10.0|^11.0",
+        "pestphp/pest": "^3.7|^4.0",
+        "pestphp/pest-plugin-laravel": "^3.0|^4.0"
+    },
     "autoload": {
         "psr-4": {
             "Spiggle\\FormBuilder\\": "src/",
@@ -44,11 +50,26 @@
             "Spiggle\\FormBuilder\\Database\\Seeders\\": "database/seeders/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Spiggle\\FormBuilder\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "post-autoload-dump": "@php ./vendor/bin/testbench package:discover --ansi",
+        "test": "pest",
+        "test:lint": "pint --test tests"
+    },
     "extra": {
         "laravel": {
             "providers": [
                 "Spiggle\\FormBuilder\\FormBuilderServiceProvider"
             ]
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
         }
     },
     "minimum-stability": "stable",

@@ -1,6 +1,7 @@
 # Spiggle Form Builder Core
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Tests](https://img.shields.io/github/actions/workflow/status/skillbobby/Spiggle-Form-Builder-Core/tests.yml?branch=main&label=tests)](https://github.com/skillbobby/Spiggle-Form-Builder-Core/actions/workflows/tests.yml)
 [![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?logo=php&logoColor=white)](https://php.net)
 [![Laravel](https://img.shields.io/badge/Laravel-13-FF2D20?logo=laravel&logoColor=white)](https://laravel.com)
 [![Filament](https://img.shields.io/badge/Filament-5-FFAA00)](https://filamentphp.com)
